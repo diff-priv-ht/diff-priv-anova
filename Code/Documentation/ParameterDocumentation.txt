@@ -1,0 +1,35 @@
+Documentation of all parameters used in this code. The order of input for parameters is alphabetical in all functions.
+ABCDEFGHIJKLMNOPQRSTUVWXYZ
+A
+alphas: List of floats in (0,1) interval. A list of the statistical significance levels (e.g. 0.05) for when to reject the null hypothesis.
+
+E
+epsilons: list of floats (or value None). Contains the privacy parameter(s) to be used for data generation.
+epsilon_num_alloc: float in interval (0,1). Proportion of epsilon to be allocated to numerator of statistic.
+epsilon_num_allocs: list of floats in (0,1) interval. Contains the proportion of epsilon to be allocated to numerator of statistic (e.g. SSA, SQA, or VarQ).
+exponent: float > 0. The exponent on the test statistics for F and G.
+
+G
+generate_data: bool. In script, indication of whether new data should be created, or if data already exists from a previous run.
+group_sizes_all: list of list of ints > 1. Contains the lists of groups sizes for each database (list of group_sizes_db's).
+group_sizes_db: list of ints > 1. Contains the groups sizes for groups in one database.
+
+M
+means_db: list of floats in interval (0,1). Contains a list of the means of each group in a database.
+means_all: list of list of floats in interval (0,1). Contains list of means_db's (means lists for many databases).
+mse: float. Mean squared error for a given database.
+
+N
+n_runs_null: int > 0. Number of times to generate the reference distribution.
+n_runs_stat: int > 0. Number of runs of statistic.
+num_groups: list of positive ints > 1. Contains the number of groups in each database. [NOTE: Maybe we don't need this parameter since we will have group_sizes_db??. Seems redundant]
+
+R
+run_true_devs: bool. Indicates whether to run tests using the (nonprivate) true standard deviations of the data.
+run_est_devs: bool. Indicates whether to run tests using the estimated (private) standard deviations of the data. Note: this is more computationally intensive than true standard deviations.
+
+S
+session_id: string. This will be the name of the directory in which all data from that run of the script is stored. Additionally, all of the parameter settings will be stored in a text file within that directory with name str(session_id) + "_Parameters".
+stand_dev: float > 0. The within-group standard deviation for a database.
+stand_devs_all: list of floats > 0. List of within-group stand_devs for multiple databases.
+stats: list of objects. List of one of the following objects--ANOVA(), F(exponent), G(exponent).

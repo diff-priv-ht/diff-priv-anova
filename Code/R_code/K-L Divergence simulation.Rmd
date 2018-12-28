@@ -1,0 +1,77 @@
+---
+title: "K-L Divergence simulation"
+author: "Iris Griffith"
+date: "6/25/2018"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE)
+library(ggplot2)
+library(purrr)
+library(dplyr)
+library(tidyverse)
+library(rmutil)
+library(entropy)
+```
+
+call functions from Power Plot.Rmd
+
+K-L divergence for Fstat
+```{r}
+binfunction <- function(vec, vec2, bins = (round(quantile(vec,.99)-quantile(vec,0.01))+1)/sd(vec) ){ #divvys up a vector into a histogram of relative frequencies. NOTE: This function assumes that vec2 is distributed in a proper subset of vec
+  br <- seq(from = quantile(vec,0.01), to = quantile(vec,.99), by = (quantile(vec,.99)-quantile(vec,0.01))/bins)
+  paste(head(br,-1), br[-1], sep=" - ")
+  vec <- vec %>% pmin(quantile(vec,.99)) %>% pmax(quantile(vec,.01)) #truncate bottom and top 1%
+  vec2 <- vec2 %>% pmin(quantile(vec,.99)) %>% pmax(quantile(vec,.01))
+  freq <- hist(vec, breaks=br, plot=FALSE)
+  freq2 <- hist(vec2, breaks=br, plot=FALSE)
+  list(freq$counts/sum(freq$counts),freq2$counts/sum(freq2$counts),br)
+}
+
+mus <- c(.5,.5,.5)
+D <- pardatagen(300,mus,sigma,1000)
+
+x1 <- Fstat(D,1)
+x2 <- Fstat(D,-1)
+y1 <- binfunction(x1,x2,bins = 100)
+KL.plugin(y1[[2]],y1[[1]])
+ggplot(data.frame(x=c(x1,x2),
+                  epsilon = rep(c("private","public"), rep(length(x1),2))),
+       aes(x=x, col = epsilon, fill = epsilon)) + geom_density(alpha = .5) +
+  xlim(min(y1[[3]])*.005, max(y1[[3]])*.005)
+
+x1 <- absFstat(D,1)
+x2 <- absFstat(D,-1)
+y1 <- binfunction(x1,x2,bins = 100)
+KL.plugin(y1[[2]],y1[[1]])
+ggplot(data.frame(x=c(x1,x2),
+                  epsilon = rep(c("private","public"), rep(length(x1),2))),
+       aes(x=x, col = epsilon, fill = epsilon)) + geom_density(alpha = .5) +
+  xlim(min(y1[[3]]), max(y1[[3]]))
+
+x1 <- Varstat(D,1)
+x2 <- Varstat(D,-1)
+y1 <- binfunction(x1,x2,bins = 100)
+KL.plugin(y1[[2]],y1[[1]])
+ggplot(data.frame(x=c(x1,x2),
+                  epsilon = rep(c("private","public"), rep(length(x1),2))),
+       aes(x=x, col = epsilon, fill = epsilon)) + geom_density(alpha = .5) +
+  xlim(1, 1.25)
+
+x1 <- absVarstat(D,1)
+x2 <- absVarstat(D,-1)
+y1 <- binfunction(x1,x2,bins = 100)
+KL.plugin(y1[[2]],y1[[1]])
+ggplot(data.frame(x=c(x1,x2),
+                  epsilon = rep(c("private","public"), rep(length(x1),2))),
+       aes(x=x, col = epsilon, fill = epsilon)) + geom_density(alpha = .5) +
+  xlim(.9, 1.2)
+```
+The K-L Divergence for public vs private F distributions is:
+
+$D_{KL}(f_{public}||f_{private}) =$ `KL.plugin(y1[[2]],y1[[1]])`
+
+
+
+

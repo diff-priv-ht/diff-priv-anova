@@ -1,0 +1,5 @@
+source("datagen.R")
+source("ggplot_theme.R")
+source("helpers.R")
+source("power_calc.R")
+source("stat_functions.R")

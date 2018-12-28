@@ -1,0 +1,187 @@
+---
+title: "Power Plot"
+author: "Iris Griffith"
+date: "6/21/2018"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE)
+require(ggplot2)
+require(purrr)
+require(dplyr)
+require(tidyverse)
+require(rmutil)
+source('https://raw.githubusercontent.com/diff-priv-ht/ANOVA-Group/master/Code/R%20code/R/datagen.R?token=AeAa3YlvA4FuDWcBEb9zfFjtKAEktgOqks5bjh7iwA%3D%3D', echo=FALSE)
+source('https://raw.githubusercontent.com/diff-priv-ht/ANOVA-Group/master/Code/R%20code/R/ggplot_theme.R?token=AeAa3Y14yJtVX39GdK5dfyZkEbs3M77Qks5bjh8qwA%3D%3D', echo=FALSE)
+source('https://raw.githubusercontent.com/diff-priv-ht/ANOVA-Group/master/Code/R%20code/R/helpers.R?token=AeAa3b71_HFAGlkpAdQ3JYt6SoPat3TZks5bjh9NwA%3D%3D', echo=FALSE)
+source('https://raw.githubusercontent.com/diff-priv-ht/ANOVA-Group/master/Code/R%20code/R/power_calc.R?token=AeAa3XDD7X9RgE7INdceLtzufMhKQLfTks5bjh9pwA%3D%3D', echo=FALSE)
+source('https://raw.githubusercontent.com/diff-priv-ht/ANOVA-Group/master/Code/R%20code/R/stat_functions.R?token=AeAa3bvXCCClhPiibKASw6VCr8Ye4KVrks5bjh-AwA%3D%3D', echo=FALSE)
+```
+
+```{r}
+sigma <- .15
+effect_size <- 1*sigma
+mus <- c(.5-effect_size,.5,.5+effect_size)
+epsilons <- c(1, .5, .1)
+```
+
+Figure 1
+```{r}
+Ns <- c(3,30,75,150,3*round(10^seq(from = 2, to = 3.625, by = .125)))
+set.seed(1)
+pplot1 <- power_plot(Ns, mus, sigma, epsilons, Statistic = "Fstat",
+                               p = NULL, reps = 10000, frac = .5)
+set.seed(2)
+pplot2 <- power_plot(Ns, mus, sigma, epsilons, Statistic = "absFstat",
+                               p = NULL, reps = 10000, frac = .7)
+
+( subset(pplot1[[2]]$data, pplot1[[2]]$data$eps==1) %>% 
+    rbind(subset(pplot2[[2]]$data, pplot2[[2]]$data$eps==1)) ) %>%
+  mutate(stat = rep(c("F2", "F1"), c(nrow(pplot1[[1]]),nrow(pplot2[[1]])))) %>%
+  ggplot(aes(x=N,y=Power, col = stat)) +
+  geom_line() +
+  scale_x_log10() +
+  theme_Publication() +
+  scale_colour_Publication() +
+  scale_fill_Publication() +
+  labs(x = "Database Size (log scale)", y = "Power", col = "Statistic") +
+  ggtitle(expression(paste("Power vs. Database Size for ",
+                           F[1], " and ", F[2], " Statistics")))
+```
+Figure 2 in "Behaviors of the Estimates for the True Variance.Rmd"
+
+Figure 3
+```{r}
+Ns <- c(30,75,150,3*round(10^seq(from = 2, to = 3, by = .125)))
+set.seed(3)
+pplot3 <- power_plot_estimated(Ns, mus, sigma, epsilons,
+                     Statistic = "absFstat", p = NULL, reps = 500, frac = .7)
+
+( subset(pplot2[[2]]$data, pplot2[[2]]$data$eps==1) %>% 
+    rbind(subset(pplot3[[2]]$data, pplot3[[2]]$data$eps==1)) ) %>%
+  mutate(stat = rep(c("Estimated", "Ground Truth"), 
+                    c(nrow(pplot2[[1]]),nrow(pplot3[[1]])))) %>%
+  ggplot(aes(x=N,y=Power, col = stat)) +
+  geom_line() +
+  xlim(c(0,712)) +
+  theme_Publication() +
+  scale_colour_Publication() +
+  scale_fill_Publication() +
+  labs(x = "Database Size (log scale)", y = "Power", col = "Statistic") +
+  ggtitle(expression(paste("Power vs. Database Size for ",
+                           F[1], " and ", F[2], " Statistics")))
+
+```
+
+Figure 4
+```{r}
+pplot2[[2]] + scale_x_log10() +
+  theme_Publication() +
+  scale_colour_Publication() +
+  scale_fill_Publication() +
+  labs(x = "Database Size (log scale)", y = "Power", col = expression(epsilon)) +
+  ggtitle(expression(paste("Power vs. Database Size for ",
+                           F[1], " Statistic")))
+```
+
+Figure 5 in "Uniformity of p-values.Rmd"
+
+Figure 6
+```{r}
+ps <- seq(from = .7, to = 1.4, by = .1)
+Ns <- c(30, 75, 150, 3*round(10^seq(from = 2, to = 2.75, by = .125)))
+set.seed(5)
+pplot5 <- power_plot_p(Ns, mus = c(.35,.5,.65), sigma = .15, epsilon = 1,
+                       Statistic = "Fpstat", ps = ps, reps = 20000, frac = .7)
+pplot5 + theme_Publication() + 
+  scale_colour_Publication() +
+  labs(x = "Database Size (log scale)") +
+  ggtitle(expression(paste("Power for ", F[1], " Statistic with differing q"))) +
+  scale_x_log10()
+```
+
+Figure 7
+```{r}
+Ns <- seq(from = 30, to = 800, by = 3*20)
+set.seed(4)
+pplot4 <- power_plot_frac(Ns, mus, sigma, epsilon = 1, Statistic = "absFstat",
+                          p = NULL, reps = 500, fracs = c(.5,.55,.6,.65,.7,.75))
+pplot4 + theme_Publication() + 
+  scale_colour_Publication() +
+  xlim(c(0,600)) +
+  labs(x = "N", col = expression(rho)) +
+  ggtitle(expression(paste("Power for ",
+                           F[1], " Statistic, with Differing ", rho, ", using estimated ", sigma)))
+```
+
+Figure 8
+```{r}
+sigma <- .15
+effect_size <- 1*sigma
+mus <- c(.5-effect_size,.5,.5+effect_size)
+epsilons <- c(1, .5, .1)
+Ns <- c(30, 75, 150, 3*round(10^seq(from = 2, to = 2.875, by = .125)))
+set.seed(8)
+pplot8 <-  power_plot_p(Ns, mus = c(.35,.5,.65), sigma = .15, epsilon = 1,
+                       Statistic = "Varpstat", ps = ps, reps = 20000, frac = .5)
+pplot8 + theme_Publication() +
+  scale_colour_Publication() +
+  labs(x = "N") +
+  ggtitle(expression(paste("Power for ", G, " Statistic with differing q")))
+```
+
+Figure 9
+```{r}
+set.seed(9)
+pplot9 <- power_plot_frac(Ns, mus, sigma, epsilon = 1, Statistic = "absVarstat",
+                          p = NULL, reps = 500, fracs = c(.25,.3,.35,.4,.45,.5))
+pplot9 + theme_Publication() +
+  scale_colour_Publication() +
+  scale_x_log10() +
+  labs(x = "Database Size (log scale)", col = expression(rho)) +
+  ggtitle(expression(paste("Power for ", G[1], " Statistic with differing ", rho)))
+set.seed(10)
+pplot10 <- power_plot_frac(Ns, mus = c(.3,.5,.7), sigma = .1, epsilon = 1, Statistic = "absVarstat",
+                          p = NULL, reps = 500, fracs = c(.25,.3,.35,.4,.45,.5))
+pplot10 + theme_Publication() +
+  scale_colour_Publication() +
+  scale_x_log10() +
+  labs(x = "Database Size (log scale)", col = expression(rho)) +
+  ggtitle(expression(paste("Power for ", G[1], " Statistic with differing ", rho)))
+```
+
+
+Extras:
+
+```{r}
+
+combine_plots <- function(pplot1, pplot2, col_label){
+  ( subset(pplot1[[2]]$data, pplot1[[2]]$data$eps==1) %>% 
+    rbind(subset(pplot2[[2]]$data, pplot2[[2]]$data$eps==1)) ) %>%
+  mutate(stat = rep(col_label, c(nrow(pplot1[[1]]),nrow(pplot2[[1]])))) %>%
+  ggplot(aes(x=N,y=Power, col = stat)) +
+  geom_line() +
+  scale_x_log10() +
+  theme_Publication() +
+  scale_colour_Publication() +
+  scale_fill_Publication() +
+  labs(x = "Database Size (log scale)", y = "Power", col = "Statistic") +
+  ggtitle(expression(paste("Power vs. Database Size")))
+}
+```
+
+
+```{r}
+Ns <- c(30, 75, 150, 3*round(10^seq(from = 2, to = 2.875, by = .125)))
+
+sigma <- .10
+effect_size <- 2.76*sigma
+mus <- c(.5-effect_size,.5,.5+effect_size)
+set.seed(1)
+pplot6 <- power_plot(Ns, mus, sigma, epsilons, Statistic = "absFstat",
+                               p = NULL, reps = 20000, frac = .75)
+pplot7 <- power_plot(Ns, mus, sigma, epsilons, Statistic = "absVarstat",
+                               p = NULL, reps = 20000, frac = .35)
+combine_plots(pplot6,pplot7, c("F1", "G1"))
+```

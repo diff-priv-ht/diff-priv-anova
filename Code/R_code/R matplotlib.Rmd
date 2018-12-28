@@ -1,0 +1,41 @@
+---
+title: "R matplotlib"
+author: "Iris Griffith"
+date: "6/22/2018"
+output: pdf_document
+---
+
+`sudo apt-get install python-dev python-matplotlib`
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE)
+library(ggplot2)
+library(purrr)
+library(dplyr)
+library(tidyverse)
+library(rmutil)
+library(devtools)
+#library(Rcpp)
+install_github("mpastell/Rpyplot")
+library(Rpyplot)
+```
+
+```{r}
+custom.plot <- function(pow,Ns,epsilons,title=NULL){
+  pyplot(x=Ns,y=pow[,1],color = "blue", marker = "o")
+  pyplot(x=Ns,y=pow[,2], color = "red", marker ="o")
+  pyplot(x=Ns,y=pow[,3], color = "green", marker ="o")
+#  pyplot(x=Ns,y=pow[,4], color = "orange", marker ="o")
+  pytitle(title)
+  xlabel("Database Size")
+  ylabel("Power")
+  pyshow()
+}
+```
+
+example
+```{r}
+custom.plot(absANOVA.estimated[[1]],Ns,epsilons,title = "Power vs. Database Size, Estimated SD Absolute Value ANOVA")
+
+custom.plot(Var1.estimated[[1]],Ns,epsilons,title = "Power vs. Database Size, Estimated SD Absolute Variance Statistic")
+```

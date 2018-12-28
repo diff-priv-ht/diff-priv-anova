@@ -1,0 +1,477 @@
+---
+title: "heatmap"
+author: "Iris Griffith"
+date: "6/21/2018"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE)
+library(ggplot2)
+library(purrr)
+library(dplyr)
+library(tidyverse)
+library(rmutil)
+```
+
+Data generating function and scale/truncate funcion 
+```{r}
+datagen <- function(N,mus,sigma,p = NULL){ #generates N draws from k (determined by length of mus and p) different normal distributions with same sd, mus is a vector of means, p is a vector of relative group sizes.
+  if (missing(p)){
+    p <- rep(1/length(mus),length(mus))
+  }
+  p <- p/sum(p)
+  data.frame(x=rnorm(N,
+                     mean = rep(mus, round(N*p)),
+                     sd = rep(sigma, N)),
+             group=(rep(1:length(p), round(N*p))))
+}
+
+pardatagen <- function(N,mus,sigma,reps = 1 ,p = NULL){ #parallelized datagen function with iteration counts
+  if (missing(p)){
+    p <- rep(1/length(mus),length(mus))
+  }
+  p <- p/sum(p)
+  data.frame(x=rnorm(N*reps,
+                     mean = rep(rep(mus, round(N*p)), reps),
+                     sd = rep(sigma, N*reps)),
+             group=(rep(rep(1:length(p), round(N*p)), reps)),
+             iteration=rep(1:reps,rep(N,reps))
+             )
+}
+
+scale.to.unit <- function(D, bound = NULL){ #scales data to the unit interval and then truncates data if bounds are defined
+  if(missing(bound)){
+    D$x <- (D$x - (min(D$x)))/abs(min(D$x)-max(D$x))
+    D
+  }
+  else{
+    D$x <- ((D$x - min(bound))/abs(bound[1]-bound[2])) %>% pmin(1) %>% pmax(0)
+    D
+  }
+}
+```
+
+Statistic Functions
+```{r}
+Fstat <- function(D,epsilon, frac = .5){ # input is data, itNx3 dataframe, output is vector of statistic for one epsilon, for each iteration
+  D$x <- D$x %>% pmin(1) %>% pmax(0)
+  it <- max(D$iteration)
+  ns <- D %>%
+    filter(iteration==1) %>%
+    group_by(group) %>%
+    summarise(n_size = n()) %>%
+    pull(2)
+  k <- length(ns)
+  #SSA stuff: i indexed across it, j indexed across k
+  ybar_ij <- D %>%
+    group_by(.dots = c("iteration", "group")) %>%
+    mutate(mean_ij = mean(x)) %>%
+    pull() %>%
+    matrix(nrow = it, byrow = TRUE)
+  yBar_i <- D %>%
+    group_by(iteration) %>%
+    summarise(Mean_i = mean(x)) %>%
+    pull
+  SSA <- (ybar_ij-yBar_i)^2 %>% rowSums
+  #SSE stuff:
+  SSE <- D %>% add_column(ybar_ij = as.vector(t(ybar_ij))) %>% group_by(.dots = c("iteration", "group")) %>%  mutate(sqdiff = (x - ybar_ij)^2) %>% pull(5) %>% matrix(ncol = it) %>% colSums()
+  #F statistic
+  if (epsilon >= 0){
+    SSA.noise <- rlaplace(length(epsilon)*it,0,(9+(5/sum(ns)))/(frac*epsilon))
+    SSE.noise <- rlaplace(length(epsilon)*it,0,7/((1-frac)*epsilon))
+    ((SSA+SSA.noise)/(k-1))/((SSE+SSE.noise)/(sum(ns)-k))
+  }
+  else{
+    (SSA/(k-1))/(SSE/(sum(ns)-k))
+  }
+}
+absFstat <- function(D,epsilon, frac = .5){ # input is data, itNx3 dataframe, output is vector of statistic for one epsilon, for each iteration
+  D$x <- D$x %>% pmin(1) %>% pmax(0)
+  it <- max(D$iteration)
+  ns <- D %>%
+    filter(iteration==1) %>%
+    group_by(group) %>%
+    summarise(n_size = n()) %>%
+    pull(2)
+  k <- length(ns)
+  #SA stuff: i indexed across it, j indexed across k
+  ybar_ij <- D %>%
+    group_by(.dots = c("iteration", "group")) %>%
+    mutate(mean_ij = mean(x)) %>%
+    pull() %>%
+    matrix(nrow = it, byrow = TRUE)
+  yBar_i <- D %>%
+    group_by(iteration) %>%
+    summarise(Mean_i = mean(x)) %>%
+    pull
+  SA <- abs(ybar_ij-yBar_i) %>% rowSums
+  #SE stuff:
+  SE <- D %>% add_column(ybar_ij = as.vector(t(ybar_ij))) %>% group_by(.dots = c("iteration", "group")) %>%  mutate(sqdiff = abs(x - ybar_ij)) %>% pull(5) %>% matrix(ncol = it) %>% colSums()
+  #F statistic
+  if (epsilon >= 0){
+    SA.noise <- rlaplace(length(epsilon)*it,0,4/(frac*epsilon))
+    SE.noise <- rlaplace(length(epsilon)*it,0,3/((1-frac)*epsilon))
+    ((SA+SA.noise)/(k-1))/((SE+SE.noise)/(sum(ns)-k))
+  }
+  else{
+    ((SA)/(k-1))/((SE)/(sum(ns)-k))
+  }
+}
+
+
+Fstat.parallel <- function(D,epsilons, frac = .5){ # input is data, itNx3 dataframe, output is statistic matrix for each iteration (row index) and each epsilon (column index). columns indexed past length(epsilons)+1 are the standard deviation estimates.
+  D$x <- D$x %>% pmin(1) %>% pmax(0)
+  it <- max(D$iteration)
+  ns <- D %>%
+    filter(iteration==1) %>%
+    group_by(group) %>%
+    summarise(n_size = n()) %>%
+    pull(2)
+  k <- length(ns)
+  #SSA stuff: i indexed across it, j indexed across k
+  ybar_ij <- D %>%
+    group_by(.dots = c("iteration", "group")) %>%
+    mutate(mean_ij = mean(x)) %>%
+    pull() %>%
+    matrix(nrow = it, byrow = TRUE)
+  yBar_i <- D %>%
+    group_by(iteration) %>%
+    summarise(Mean_i = mean(x)) %>%
+    pull
+  SSA <- (ybar_ij-yBar_i)^2 %>% rowSums
+  #SSE stuff:
+  SSE <- D %>% add_column(ybar_ij = as.vector(t(ybar_ij))) %>% group_by(.dots = c("iteration", "group")) %>%  mutate(sqdiff = (x - ybar_ij)^2) %>% pull(5) %>% matrix(ncol = it) %>% colSums()
+  #F statistic
+  SSA.noise <- rep(0,length(it)) %>% 
+    rbind(rlaplace(length(epsilons)*it,0,(9+(5/sum(ns)))/(frac*epsilons)) %>%
+    matrix(nrow = length(epsilons)))
+  SSE.noise <- rep(0,length(it)) %>% 
+    rbind(rlaplace(length(epsilons)*it,0,7/((1-frac)*epsilons)) %>%
+    matrix(nrow = length(epsilons)))
+  ANS <- rep(NA,2*it*(1+length(epsilons))) %>% matrix(ncol = 2*(1+length(epsilons)))
+  for (i in 1:(1+length(epsilons))){
+    ANS[,i] <- ((SSA+SSA.noise[i,])/(k-1))/((SSE+SSE.noise[i,])/(sum(ns)-k))
+    ANS[,i+1+length(epsilons)] <- ((SSE+SSE.noise[i,])/(sum(ns)-k)) %>% sqrt
+  }
+  ANS
+}
+
+absFstat.parallel <- function(D,epsilons, frac = .5){ # input is data, itNx3 dataframe, output is statistic matrix for each iteration (row index) and each epsilon (column index). columns indexed past length(epsilons)+1 are the standard deviation estimates.
+  D$x <- D$x %>% pmin(1) %>% pmax(0)
+  it <- max(D$iteration)
+  ns <- D %>%
+    filter(iteration==1) %>%
+    group_by(group) %>%
+    summarise(n_size = n()) %>%
+    pull(2)
+  k <- length(ns)
+  #SA stuff: i indexed across it, j indexed across k
+  ybar_ij <- D %>%
+    group_by(.dots = c("iteration", "group")) %>%
+    mutate(mean_ij = mean(x)) %>%
+    pull() %>%
+    matrix(nrow = it, byrow = TRUE)
+  yBar_i <- D %>%
+    group_by(iteration) %>%
+    summarise(Mean_i = mean(x)) %>%
+    pull
+  SA <- abs(ybar_ij-yBar_i) %>% rowSums
+  #SE stuff:
+  SE <- D %>% add_column(ybar_ij = as.vector(t(ybar_ij))) %>% group_by(.dots = c("iteration", "group")) %>%  mutate(sqdiff = abs(x - ybar_ij)) %>% pull(5) %>% matrix(ncol = it) %>% colSums()
+  #F statistic
+  SA.noise <- rep(0,length(it)) %>% 
+    rbind(rlaplace(length(epsilons)*it,0,4/(frac*epsilons)) %>%
+    matrix(nrow = length(epsilons)))
+  SE.noise <- rep(0,length(it)) %>%
+    rbind(rlaplace(length(epsilons)*it,0,3/((1-frac)*epsilons)) %>%
+    matrix(nrow = length(epsilons)))
+  ANS <- rep(NA,2*it*(1+length(epsilons))) %>% matrix(nrow = it)
+  for (i in 1:(1+length(epsilons))){
+    ANS[,i] <- ((SA+SA.noise[i,])/(k-1))/((SE+SE.noise[i,])/(sum(ns)-k))
+    ANS[,i+1+length(epsilons)] <- ((SE+SE.noise[i,])/(sum(ns)-k))*sqrt(pi/2)
+  }
+  ANS
+}
+
+```
+
+Variance Statistics
+```{r}
+Varstat <- function(D,epsilon, frac =.5){ # input is data, itNx3 dataframe, output is vector of statistic for one epsilon, for each iteration
+  D$x <- D$x %>% pmin(1) %>% pmax(0)
+  it <- max(D$iteration)
+  ns <- D %>%
+    filter(iteration==1) %>%
+    group_by(group) %>%
+    summarise(n_size = n()) %>%
+    pull(2)
+  k <- length(ns)
+  #Var2 stuff: i indexed across it, j indexed across k
+  Var2 <- D %>%
+    group_by(iteration) %>%
+    summarise(Var2 = (x-mean(x))^2 %>% sum) %>%
+    pull
+  #SSE stuff:
+  SSE <- D %>%
+    group_by(.dots = c("iteration", "group")) %>%
+    mutate(ybar_ij = mean(x),sqdiff = (x - ybar_ij)^2) %>%
+    pull(5) %>% matrix(ncol = it) %>% colSums()
+  #F statistic
+  if (epsilon >= 0){
+    Var2.noise <- rlaplace(length(epsilon)*it,0,(5+(5/sum(ns))+1/(sum(ns)^2))/(frac*epsilon))
+    SSE.noise <- rlaplace(length(epsilon)*it,0,7/((1-frac)*epsilon))
+    ((Var2+Var2.noise)/(sum(ns)-1))/((SSE+SSE.noise)/(sum(ns)-k))
+  }
+  else{
+    ((Var2)/(sum(ns)-1))/((SSE)/(sum(ns)-k))
+  }
+}
+
+absVarstat <- function(D,epsilon, frac = .5){ # input is data, itNx3 dataframe, output is vector of statistic for one epsilon, for each iteration
+  D$x <- D$x %>% pmin(1) %>% pmax(0)
+  it <- max(D$iteration)
+  ns <- D %>%
+    filter(iteration==1) %>%
+    group_by(group) %>%
+    summarise(n_size = n()) %>%
+    pull(2)
+  k <- length(ns)
+  #Var1 stuff: i indexed across it, j indexed across k
+  Var1 <- D %>%
+    group_by(iteration) %>%
+    summarise(Var2 = abs(x-mean(x)) %>% sum) %>%
+    pull
+  #SE stuff:
+  SE <- D %>%
+    group_by(.dots = c("iteration", "group")) %>%
+    mutate(ybar_ij = mean(x),sqdiff = abs(x - ybar_ij)) %>%
+    pull(5) %>% matrix(ncol = it) %>% colSums()
+  #F statistic
+  if (epsilon >= 0){
+    Var1.noise <- rlaplace(length(epsilon)*it,0,(2-2/sum(ns))/(frac*epsilon))
+    SE.noise <- rlaplace(length(epsilon)*it,0,3/((1-frac)*epsilon))
+    ((Var1+Var1.noise)/(sum(ns)-1))/((SE+SE.noise)/(sum(ns)-k))
+  }
+  else{
+    ((Var1)/(sum(ns)-1))/((SE)/(sum(ns)-k))
+  }
+}
+
+Varstat.parallel <- function(D,epsilons, frac = .5){ # input is data, itNx3 dataframe, output is statistic matrix for each iteration (row index) and each epsilon (column index). columns indexed past length(epsilons)+1 are the standard deviation estimates.
+  D$x <- D$x %>% pmin(1) %>% pmax(0)
+  it <- max(D$iteration)
+  ns <- D %>%
+    filter(iteration==1) %>%
+    group_by(group) %>%
+    summarise(n_size = n()) %>%
+    pull(2)
+  k <- length(ns)
+  #Var2 stuff: i indexed across it, j indexed across k
+  Var2 <- D %>%
+    group_by(iteration) %>%
+    summarise(Var2 = (x-mean(x))^2 %>% sum) %>%
+    pull
+  #SSE stuff:
+  SSE <- D %>%
+    group_by(.dots = c("iteration", "group")) %>%
+    mutate(ybar_ij = mean(x),sqdiff = (x - ybar_ij)^2) %>%
+    pull(5) %>% matrix(ncol = it) %>% colSums()
+  #F statistic
+  Var2.noise <- rep(0,length(it)) %>% 
+    rbind(rlaplace(length(epsilons)*it,0,(5+(5/sum(ns))+1/(sum(ns)^2))/(frac*epsilons)) %>%
+    matrix(nrow = length(epsilons)))
+  SSE.noise <- rep(0,length(it)) %>% 
+    rbind(rlaplace(length(epsilons)*it,0,7/((1-frac)*epsilons)) %>%
+    matrix(nrow = length(epsilons)))
+  ANS <- rep(NA,2*it*(1+length(epsilons))) %>% matrix(ncol = 2*(1+length(epsilons)))
+  for (i in 1:(1+length(epsilons))){
+    ANS[,i] <- ((Var2+Var2.noise[i,])/(sum(ns)-1))/((SSE+SSE.noise[i,])/(sum(ns)-k))
+    ANS[,i+1+length(epsilons)] <- ((Var2+Var2.noise[i,])/(sum(ns)-1)) %>% sqrt
+  }
+  ANS
+}
+
+absVarstat.parallel <- function(D,epsilons, frac = .5){ # input is data, itNx3 dataframe, output is statistic matrix for each iteration (row index) and each epsilon (column index). columns indexed past length(epsilons)+1 are the standard deviation estimates.
+  D$x <- D$x %>% pmin(1) %>% pmax(0)
+  it <- max(D$iteration)
+  ns <- D %>%
+    filter(iteration==1) %>%
+    group_by(group) %>%
+    summarise(n_size = n()) %>%
+    pull(2)
+  k <- length(ns)
+  #Var2 stuff: i indexed across it, j indexed across k
+  Var1 <- D %>%
+    group_by(iteration) %>%
+    summarise(Var1 = abs(x-mean(x)) %>% sum) %>%
+    pull
+  #SE stuff:
+  SE <- D %>%
+    group_by(.dots = c("iteration", "group")) %>%
+    mutate(ybar_ij = mean(x),sqdiff = abs(x - ybar_ij)) %>%
+    pull(5) %>% matrix(ncol = it) %>% colSums()
+  #F statistic
+  Var1.noise <- rep(0,length(it)) %>% 
+    rbind(rlaplace(length(epsilons)*it,0,(2-2/sum(ns))/(frac*epsilons)) %>%
+    matrix(nrow = length(epsilons)))
+  SE.noise <- rep(0,length(it)) %>% 
+    rbind(rlaplace(length(epsilons)*it,0,3/((1-frac)*epsilons)) %>%
+    matrix(nrow = length(epsilons)))
+  ANS <- rep(NA,2*it*(1+length(epsilons))) %>% matrix(ncol = 2*(1+length(epsilons)))
+  for (i in 1:(1+length(epsilons))){
+    ANS[,i] <- ((Var1+Var1.noise[i,])/(sum(ns)-1))/((SE+SE.noise[i,])/(sum(ns)-k))
+    ANS[,i+1+length(epsilons)] <- ((Var1+Var1.noise[i,])/(sum(ns)-1))*sqrt(pi/2)
+  }
+  ANS
+}
+
+```
+Power Stat function
+```{r}
+na.omit.mean <- function(vec){ #helper function, omits NAs and finds mean of Bool vector to find power
+  sum(na.omit(vec))/length(vec)
+}
+
+crit <- function(M){ #helper function, finds critical points of null dists across the colums of a matrix of null distributions.
+  apply(M, 2, quantile,probs = .95)
+}
+
+power.stat <- function(Ns, mus, sigma, epsilons, Statistic = "Fstat", reps = 1, p = NULL, lower.tail = TRUE){ #calculates power for each N,epsilon pair, while generating null hypothesis data using true value of sigma
+  if (missing(p)){
+    p <- rep(1,length(mus))
+  }
+  if(ifelse(all.equal(Statistic,"Fstat")==TRUE,TRUE,FALSE)){
+  Statistic <- Fstat.parallel
+  }
+  if(ifelse(all.equal(Statistic,"absFstat")==TRUE,TRUE,FALSE)){
+  Statistic <- absFstat.parallel
+  }
+  if(ifelse(all.equal(Statistic,"Varstat")==TRUE,TRUE,FALSE)){
+  Statistic <- Varstat.parallel
+  }
+  if(ifelse(all.equal(Statistic,"absVarstat")==TRUE,TRUE,FALSE)){
+  Statistic <- absVarstat.parallel
+  }
+  Ds0 <- Ns %>%
+    map(~ pardatagen(.,rep(.5,length(mus)),sigma,reps,p))
+  Ds1 <- Ns %>%
+    map(~ pardatagen(.,mus,sigma,reps,p)) 
+  RRmat <- Ds0 %>% 
+    map(~ Statistic(.,epsilons)[,1:(1+length(epsilons))]) %>%
+    sapply(crit) %>% t
+  altstat <- Ds1 %>%
+    map(~ Statistic(.,epsilons)[,1:(1+length(epsilons))])
+  ANS <- rep(NA, length(Ns)*(1+length(epsilons))) %>%
+    matrix(nrow = length(Ns))
+  for (i in 1:(length(Ns))){
+    for (j in 1:(1+length(epsilons))){
+    ANS[i,j] <- (altstat[[i]][,j] > RRmat[i,j]) %>% na.omit.mean()
+    }
+  }
+  ANS
+}
+```
+
+Power Stat using estimated variance
+```{r}
+na.omit.mean <- function(vec){
+  sum(na.omit(vec))/length(vec)
+}
+
+power.stat.estimated <- function(Ns, mus, sigma, epsilons, Statistic = "Fstat", reps = 1, p = NULL, lower.tail = TRUE){ #calculates power for each N,epsilon pair, while generating null hypothesis data using estimate for sigma
+  if (missing(p)){
+    p <- rep(1,length(mus))
+  }
+  if(Statistic == "Fstat"){
+  parStat <- Fstat
+  par2Stat <- Fstat.parallel
+  }
+  if(Statistic == "absFstat"){
+  parStat <- absFstat
+  par2Stat <- absFstat.parallel
+  }
+  if(Statistic == "Varstat"){
+  parStat <- Varstat
+  par2Stat <- Varstat.parallel
+  }
+  if(Statistic == "absVarstat"){
+  parStat <- absVarstat
+  par2Stat <- absVarstat.parallel
+  }
+#  RRs <- 1:(1+length(epsilons))
+  power <- rep(NA,1+length(epsilons))
+  powermat <- rep(power,length(Ns)) %>% matrix(nrow=length(Ns))
+  epsilons2 <- c(-1,epsilons)
+  Reject <- rep(power,reps) %>% matrix(nrow=reps)
+  for (i in 1:length(Ns)){
+    altstat <- pardatagen(Ns[i],mus,sigma,reps,p) %>% par2Stat(epsilons)
+    MSEs <- altstat[,(2+length(epsilons)):(2*(1+length(epsilons)))] #These are the standard deviation estimates, the par2 statistic functions compute these in parrallel for each epsilon level
+    altstat <- altstat[,1:(1+length(epsilons))]
+    nullstat <- rep(NA,(1+length(epsilons))*reps) %>% matrix(nrow=reps)
+    for (j in 1:length(epsilons2)){
+      Ds0 <- MSEs[,j] %>% map(~ pardatagen(Ns[i],rep(.5,length(mus)),.,300,p)) # generate reps * 3 null stats to make null dist for each standard deviation estimate
+      RRs <- Ds0 %>% map(~ parStat(.,epsilons2[j])) %>% map(~ quantile(., probs = .95, na.rm=TRUE)) %>% unlist
+      Reject[,j] <- (altstat[,j] > RRs)
+      powermat[i,] <- apply(Reject, 2, na.omit.mean)
+    }
+  }
+  powermat
+}
+```
+Power Plot MSE function
+```{r}
+power.plot <- function(Ns, mus, sigma, epsilons, Statistic = "Fstat", reps, p = NULL){ #plot power against database size, for each N,epsilon pair
+    if (missing(p)){
+    p <- rep(1,length(mus))
+    }
+  pow <- power.stat(Ns, mus, sigma, epsilons, Statistic, reps, p) 
+  d <- data.frame(N= rep(Ns,rep(1+length(epsilons),length(Ns))),
+                  eps = rep(c("None",epsilons),length(Ns)),
+                  Power=pow %>% t %>% as.vector())
+  list(pow,
+       ggplot(d, aes(x=N, y=Power, col = as.factor(eps))) +
+         geom_line() +xlab("Database Size") + labs(col="Epsilon")) 
+}
+
+power.plot.estimated <- function(Ns, mus, sigma, epsilons, Statistic = "Fstat", reps, p = NULL){ #plot power against database size, for each N,epsilon pair, using estimated 
+    if (missing(p)){
+    p <- rep(1,length(mus))
+    }
+  pow <- power.stat.estimated(Ns, mus, sigma, epsilons, Statistic, reps, p) 
+  d <- data.frame(N= rep(Ns,rep(1+length(epsilons),length(Ns))),
+                  eps = rep(c("None",epsilons),length(Ns)),
+                  Power=pow %>% t %>% as.vector())
+  list(pow,
+       ggplot(d, aes(x=N, y=Power, col = as.factor(eps))) +
+         geom_line() +xlab("Database Size") + labs(col="Epsilon"))
+}
+```
+
+Example
+```{r,eval = FALSE, warning=FALSE}
+
+mus <- c(.475,.5,.525)
+effect_size <- (seq(from = 1, to = 10, by = 1)) %>% map(~ (mus-median(mus))*. + median(mus))
+sigmas <- seq(from = .01, to = .2, by = .015)
+epsilons <- 1
+reps <- 400
+Ns <- seq(from = 30, to = 1100, by = 3*30)
+
+  variables <- cross2(effect_size, sigmas) %>% unlist %>% matrix(ncol = 4, byrow = TRUE)
+  sigmas <- variables[,4]
+  effect_size <- split(t(variables[,1:3]), rep(1:nrow(variables), each = 3))
+  set.seed(1)
+    N_effect_sigma1 <- map2(.x = effect_size, .y = sigmas, ~ power.stat.estimated(Ns, .x, .y, epsilons, Statistic = "absFstat", reps))
+  set.seed(1)
+#    N_effect_sigma2 <- map2(.x = effect_size, .y = sigmas, ~ power.stat.estimated(Ns, .x, .y, epsilons, Statistic = "absVarstat", reps))
+```
+
+```{r}
+    differences <- rep(NA,length(Ns)*(1+length(epsilons))) %>% matrix(nrow = length(Ns)) %>% tensor(rep(1,length(sigmas)))
+for(i in 1:length(sigmas)){
+  differences[,,i] <- bigkid1[[i]][[1]] - bigkid2[[i]][[1]]
+}
+differences[,2,] %>% heatmap.2(Rowv=FALSE,Colv=FALSE)
+bigkid1
+```

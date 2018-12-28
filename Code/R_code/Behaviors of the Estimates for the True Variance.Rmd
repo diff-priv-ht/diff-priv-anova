@@ -1,0 +1,65 @@
+---
+title: "Behaviors of the Estimates for the True Variance"
+author: "Iris Griffith"
+date: "6/21/2018"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+library(ggplot2)
+library(purrr)
+library(dplyr)
+library(tidyverse)
+library(rmutil)
+source('https://raw.githubusercontent.com/diff-priv-ht/ANOVA-Group/master/Code/R%20code/R/datagen.R?token=AeAa3YlvA4FuDWcBEb9zfFjtKAEktgOqks5bjh7iwA%3D%3D', echo=FALSE)
+source('https://raw.githubusercontent.com/diff-priv-ht/ANOVA-Group/master/Code/R%20code/R/ggplot_theme.R?token=AeAa3Y14yJtVX39GdK5dfyZkEbs3M77Qks5bjh8qwA%3D%3D', echo=FALSE)
+source('https://raw.githubusercontent.com/diff-priv-ht/ANOVA-Group/master/Code/R%20code/R/helpers.R?token=AeAa3b71_HFAGlkpAdQ3JYt6SoPat3TZks5bjh9NwA%3D%3D', echo=FALSE)
+source('https://raw.githubusercontent.com/diff-priv-ht/ANOVA-Group/master/Code/R%20code/R/power_calc.R?token=AeAa3XDD7X9RgE7INdceLtzufMhKQLfTks5bjh9pwA%3D%3D', echo=FALSE)
+source('https://raw.githubusercontent.com/diff-priv-ht/ANOVA-Group/master/Code/R%20code/R/stat_functions.R?token=AeAa3bvXCCClhPiibKASw6VCr8Ye4KVrks5bjh-AwA%3D%3D', echo=FALSE)
+```
+
+Figure 2
+```{r}
+Ns <- seq(from = 30, to = 2000, by = 15)
+sigma <- .15
+it <- 100
+estimates <- rep(NA,max(Ns)*it) %>% matrix(nrow = it)
+for (n in Ns){
+    D <- datagen(n, c(.5,.5,.5), sigma, it)
+    estimates[,n] <- absFstat_parallel(D,1)[,4]
+}
+estimates <- estimates[,!is.na(estimates[2,])] #second column is statistic for epsilon = 1
+
+d1 <- data.frame(x = rep(Ns,rep(it,length(Ns))),
+                y = estimates %>% as.vector,
+                group = rep(1:length(Ns),rep(it,length(Ns))))
+
+est_plot1 <- ggplot(d1,aes(x=x,y=y)) +
+  geom_point(alpha = .3) +
+  geom_hline(yintercept = c(0,sigma), col = c("black", "#EFEFEF")) +
+  theme_Publication() +
+  xlab("N") +
+  labs(y = "estimate", col = "true std dev") +
+  ylim(-.35,.5) +
+  ggtitle(expression(paste("Accuracy of ", F[1], " ", sigma, " estimate"))) +
+  theme(legend.position = "none")
+  
+```
+
+
+Var1 Stat
+```{r}
+Ns <- seq(from = 30, to = 2000, by = 2*120)
+sigma <- .15
+it <- 1000
+MSEs <- rep(NA,max(Ns)*it) %>% matrix(nrow = it)
+for (n in Ns){
+    D <- datagen(n, c(.5,.5,.5), sigma)
+    MSEs[,n] <- absVarstat_parallel(D, 1, frac = .35)[,4]
+}
+d <- data.frame(x = rep(Ns,rep(it,length(Ns))),
+                y = MSEs %>% as.vector,
+                group = rep(1:length(Ns),rep(it,length(Ns))))
+ggplot(d,aes(x=x,y=y,col = as.factor(group))) + geom_boxplot() +geom_hline(yintercept = c(0,sigma), col = c("red", "black")) +xlab("Database Size") + labs(y="MSE", col = NULL) + ylim(-.25,.35) + ggtitle("Var1 as estimate for true std. dev, epsilon = 1, black line = true std. dev")
+```

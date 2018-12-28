@@ -1,0 +1,27 @@
+N,eps,Power,stat
+30,1,0.0538,Estimated
+75,1,0.0892,Estimated
+150,1,0.2205,Estimated
+300,1,0.8332,Estimated
+399,1,0.9738,Estimated
+534,1,0.9977,Estimated
+711,1,0.9998,Estimated
+948,1,1,Estimated
+1266,1,1,Estimated
+1686,1,1,Estimated
+2250,1,1,Estimated
+3e3,1,1,Estimated
+4002,1,1,Estimated
+5334,1,1,Estimated
+30,1,0.04,Ground Truth
+75,1,0.06,Ground Truth
+150,1,0.172,Ground Truth
+300,1,0.866,Ground Truth
+399,1,0.986,Ground Truth
+534,1,0.996,Ground Truth
+711,1,1,Ground Truth
+948,1,1,Ground Truth
+1266,1,1,Ground Truth
+1686,1,1,Ground Truth
+2250,1,1,Ground Truth
+3e3,1,1,Ground Truth

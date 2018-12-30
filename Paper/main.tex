@@ -1,8 +1,8 @@
-\documentclass[USenglish,oneside,twocolumn]{article}
+\documentclass[USenglish,oneside]{article}
 
 \usepackage[utf8]{inputenc}%(only for the pdftex engine)
 %\RequirePackage[no-math]{fontspec}%(only for the luatex or the xetex engine)
-\usepackage[big]{dgruyter_NEW}
+\usepackage{arxiv_style}
 
 \usepackage{amssymb}
 \usepackage{amsmath}
@@ -19,34 +19,19 @@
 \input{macros.tex}
 \graphicspath{ {images/} }
 
-\DOI{foobar}
+\title{ Improved Differentially Private Analysis of Variance}
+\author{
+	\textbf{Author} 1 & \textbf{Author 2} & \textbf{Author 3}\\
+	\texttt{email@reed.edu} & \texttt{email@reed.edu} & \texttt{email@reed.edu}\\
+	\\
+	\textbf{Author 4} & \textbf{Author 5} & \textbf{Author 6}\\
+	\texttt{email@reed.edu} & \texttt{email@reed.edu} & \texttt{email@reed.edu}\\
+}
+
+\begin{document}
 
 \cclogo{\includegraphics{by-nc-nd.pdf}}
-  
-\begin{document}
- 
-
-%  \author*[1]{Corresponding Author}
-%
-%  \author[2]{Second Author}
-%
-%  \author[3]{Third Author}
-%
-%  \author[4]{Fourth Author}
-%
-%  \affil[1]{Affil, E-mail: email@email.edu}
-%
-%  \affil[2]{Affil, E-mail: email@email.edu}
-%
-%  \affil[3]{Affil, E-mail: email@email.edu}
-%
-%  \affil[4]{Affil, E-mail: email@email.edu}
-
-  \title{\huge Improved Differentially Private Analysis of Variance}
-
-  \runningtitle{Differentially Private ANOVA}
-
-  %\subtitle{...}
+\maketitle
 
 \begin{abstract}
 {Hypothesis testing is one of the most common types of data analysis and forms the backbone of scientific research in many disciplines.  Analysis of variance (ANOVA) in particular is used to detect dependence between a categorical and a numerical variable.  Here we show how one can carry out this hypothesis test under the restrictions of differential privacy.  We show that the $F$-statistic, the optimal test statistic in the public setting, is no longer optimal in the private setting, and we develop a new test statistic $F_1$ with much higher statistical power.  We show how to rigorously compute a reference distribution for the $F_1$ statistic and give an algorithm that outputs accurate $p$-values.  We implement our test and experimentally optimize several parameters.  We then compare our test to the only previous work on private ANOVA testing, using the same effect size as that work.  We see an order of magnitude improvement, with our test requiring only 7\% as much data to detect the effect.}
@@ -55,21 +40,6 @@
 %  \classification[PACS]{}
  % \communicated{...}
  % \dedication{...}
-
-  \journalname{Proceedings on Privacy Enhancing Technologies}
-\DOI{Editor to enter DOI}
-  \startpage{1}
-  \received{..}
-  \revised{..}
-  \accepted{..}
-
-  \journalyear{..}
-  \journalvolume{..}
-  \journalissue{..}
- 
-
-\maketitle
-
 %\tableofcontents
 \input{Introduction}
 \input{Background}

@@ -1,0 +1,26 @@
+%!TEX root =  main.tex
+\subsection{Prior work on private ANOVA}
+
+The only previous work on differentially private ANOVA testing that the authors are aware of is Campbell et al.~\cite{campbell2018diffprivanova} Using the ANOVA test as defined above, they analyze the sensitivity of the \ssa and \sse with the assumption that all data was normalized to be between $0$ and $1$ and add Laplacian noise proportional to these sensitivities to the public computation of the \ssa and \sse. Their algorithm then uses post-processing to calculate the noisy $F$-statistic, and returns this in addition to the noisy \ssa and \sse (Algorithm~\ref{alg:Fhat}). 
+\begin{algorithm}
+    \begin{algorithmic}
+%        \STATE \textbf{Input:} Database \x, $\eps$ value
+        \STATE Compute $\widehat{\text{SSA}} = \text{SSA} + Z_1$ where $Z_1\sim\text{Lap}\left(\frac{7 - 9/N}{\eps/2}\right)$
+        \STATE Compute $\widehat{\text{SSE}} = \text{SSE} + Z_2$ where $Z_2\sim\text{Lap}\left(\frac{5-4/N}{\eps/2}\right)$
+        \STATE Compute $\widehat{F} = \frac{\widehat{\text{SSA}}/(\k-1)}{\widehat{\text{SSE}}/(\dbsize-\k)}$
+        \STATE return $\widehat{F}, \widehat{\text{SSA}}, \widehat{\text{SSE}}$
+    \end{algorithmic}
+    \caption{private\_F($\x, \epsilon$)} 
+     \label{alg:Fhat}
+\end{algorithm}
+
+Normally, the $F$ distribution is used to calculate a $p$-value for the $F$-statistic. However, Campbell et al.~find that the distribution of the private estimate $\widehat{F}$ differs too much from the $F$ distribution for this to be acceptable.  Furthermore, they find that it is no longer scale-free, meaning that the distribution depends on the within-group variance $\sigma^2$.  
+
+%The first thing they did to get accurate $p$-values is calculate the new reference distribution using simulation. They use the fact that \ssa  is drawn from $\sigma^2 \chi_{k-1}^2$, the chi-squared distribution with $k-1$ degrees of freedom scaled by the variance of each group, and \sse is drawn from $\sigma^2 \chi_{n-k}^2$. Normally, in the ratio $\ssa/\sse$, the $\sigma^2$ drops out. Unfortunately, one consequence of adding Laplacian noise to the \ssa and \sse is that the private $F$-statistic is no longer scale-free. 
+
+Fortunately, the \sse is an estimate of $\sigma$, so using this estimate they computed an estimated distribution on $\widehat{F}$ through simulation. They could then compare a given value of $\widehat{F}$ to this distribution to obtain a $p$-value.
+
+
+To assess the power of their private ANOVA algorithm, they simulate databases with three equal-sized groups with values drawn from $\normal(0.35, 0.15),$ $ \normal(0.5, 0.15)$, and $\normal(0.65, 0.15)$ respectively. For several $(\dbsize,\eps)$-pair choices, they generate many sets of data, apply the private ANOVA test, calculate the $p$-value, and record the percentage of simulations with $p$-values less than 0.05. They find that when $\eps = 1$, they need over five thousand data points to detect this effect (compared to two or three dozen data points in the public setting).  Our goal in this paper is to reduce the gap between the public and private setting.
+
+

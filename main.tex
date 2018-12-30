@@ -1,0 +1,97 @@
+\documentclass[USenglish,oneside,twocolumn]{article}
+
+\usepackage[utf8]{inputenc}%(only for the pdftex engine)
+%\RequirePackage[no-math]{fontspec}%(only for the luatex or the xetex engine)
+\usepackage[big]{dgruyter_NEW}
+
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{xspace}
+\usepackage{multicol}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{url}
+%\usepackage{cite}
+\usepackage{algorithmic, algorithm}
+
+\input{macros.tex}
+\graphicspath{ {images/} }
+
+\DOI{foobar}
+
+\cclogo{\includegraphics{by-nc-nd.pdf}}
+  
+\begin{document}
+ 
+
+%  \author*[1]{Corresponding Author}
+%
+%  \author[2]{Second Author}
+%
+%  \author[3]{Third Author}
+%
+%  \author[4]{Fourth Author}
+%
+%  \affil[1]{Affil, E-mail: email@email.edu}
+%
+%  \affil[2]{Affil, E-mail: email@email.edu}
+%
+%  \affil[3]{Affil, E-mail: email@email.edu}
+%
+%  \affil[4]{Affil, E-mail: email@email.edu}
+
+  \title{\huge Improved Differentially Private Analysis of Variance}
+
+  \runningtitle{Differentially Private ANOVA}
+
+  %\subtitle{...}
+
+\begin{abstract}
+{Hypothesis testing is one of the most common types of data analysis and forms the backbone of scientific research in many disciplines.  Analysis of variance (ANOVA) in particular is used to detect dependence between a categorical and a numerical variable.  Here we show how one can carry out this hypothesis test under the restrictions of differential privacy.  We show that the $F$-statistic, the optimal test statistic in the public setting, is no longer optimal in the private setting, and we develop a new test statistic $F_1$ with much higher statistical power.  We show how to rigorously compute a reference distribution for the $F_1$ statistic and give an algorithm that outputs accurate $p$-values.  We implement our test and experimentally optimize several parameters.  We then compare our test to the only previous work on private ANOVA testing, using the same effect size as that work.  We see an order of magnitude improvement, with our test requiring only 7\% as much data to detect the effect.}
+\end{abstract}
+  \keywords{Differential privacy, hypothesis testing, ANOVA}
+%  \classification[PACS]{}
+ % \communicated{...}
+ % \dedication{...}
+
+  \journalname{Proceedings on Privacy Enhancing Technologies}
+\DOI{Editor to enter DOI}
+  \startpage{1}
+  \received{..}
+  \revised{..}
+  \accepted{..}
+
+  \journalyear{..}
+  \journalvolume{..}
+  \journalissue{..}
+ 
+
+\maketitle
+
+%\tableofcontents
+\input{Introduction}
+\input{Background}
+\input{NewStatistic}
+\input{Results}
+\input{OtherConsiderations}
+%\input{VaryingExponentDiscussion}
+%\input{EpsilonFractionDiscussion}
+%\input{VarianceStatisticDiscussion}
+%\input{UnequalGroupSizesDiscussion}
+%\input{DiffEffectSizes}
+\bibliographystyle{plain}
+\bibliography{ANOVA}
+
+
+\appendix
+\input{Appendix_sigma_estimate}
+\input{Appendix_SA_Expectation}
+%\input{Appendix_BestExponentManyEffects}
+\input{Appendix_Fqsensitivity}
+%\input{Appendix_Gstatistic}
+\input{Appendix_DirectSDCalc}
+\input{Appendix_optimal_params}
+
+\end{document}

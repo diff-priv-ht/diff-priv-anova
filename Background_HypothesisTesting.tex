@@ -1,0 +1,36 @@
+%!TEX root =  main.tex
+\subsection{Hypothesis Testing}
+Hypothesis tests are common tools for making statistical inferences from data. The end goal of a hypothesis test is to determine whether a data set is consistent with a proposed model. This model is called the \textit{null hypothesis}, denoted $H_0$, and it suggests a mechanism by which the data could have been generated. The mechanism is chosen to be scientifically meaningful, for example: the variable of interest has the same distribution across all of the treatment groups.
+%The \textit{alternate hypothesis} states that there is a difference between the two. Hypothesis tests provide insight into which hypothesis the data supports, and whether the null hypothesis can be rejected. 
+
+The comparison between $H_0$ and an observed data set is made using a \textit{test statistic}.  A test statistic $f$ is simply a function from the data set to the real numbers.  The goal is to design a test statistic with a known distribution when the data comes from $H_0$, but which will follow a markedly different distribution under other scenarios.  The question then becomes, for a given database $\data$ with $f(\data)=t$, how likely is a value at least as extreme as $t$ to occur if $\data$ was drawn from $H_0$.  To compute this probability, we need to compare $t$ to the reference distribution.
+
+
+\begin{definition}[Reference Distribution] \label{def:refdist}
+Suppose $f$ is a function that computes a test statistic. The reference distribution for $f$ is the probability distribution of the statistic $T$ when $T=f(\Data)$ and $\Data$ is drawn from a distribution consistent with $H_0$.
+\end{definition}
+
+This reference distribution is used to calculate a $p$-value. A $p$-value is the probability, under the reference distribution, of drawing a statistic at least as extreme as the observed statistic.
+
+\begin{definition}[$p$-value] \label{def:pvalue}
+For a given test statistic $t=f(\x)$ and null hypothesis $H_0$, the $p$-value is defined as
+\begin{equation*}
+\Pr[T\geq t \mid T = f(\X) \text{ and } \X \leftarrow H_0].
+\end{equation*}
+\end{definition}
+
+The $p$-value provides context for the observed statistic by positioning it in the range of statistics that could be observed under $H_0$.
+
+Typically, researchers choose a significance threshold $\alpha$ and reject the null hypothesis when their calculated $p$-value is less than $\alpha$. The $\alpha$-level determines the probability of a \textit{type I error}, which occurs when an analyst rejects the null hypothesis despite it being true. The value of the statistic that demarcates this rejection region is called the \emph{critical value}, denoted by \crit. That is, $\Pr[T\geq \crit \mid T = f(\X) \text{ and } \X \leftarrow H_0] = \alpha$.
+
+When one develops a test statistic, a primary goal is to maximize \textit{statistical power}. The power of a test quantifies how effectively it can detect a deviation from $H_0$. It is the probability of rejecting when $H_0$ is false.  Generally, the power depends on both the amount of data and the effect (i.e., how different the true distribution $H_A$ is from $H_0$).
+
+\begin{definition}[Statistical Power] \label{def:power}
+For a specific alternate hypothesis $H_A$, the statistical power of a hypothesis test is 
+\begin{equation*}
+\Pr[T \geq \crit \mid T = f(\X) \text{ and } \X \leftarrow H_A]
+\end{equation*}
+\end{definition}
+
+
+

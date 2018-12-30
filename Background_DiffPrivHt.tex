@@ -1,0 +1,7 @@
+%!TEX root =  main.tex
+\subsection{Differentially Private Hypothesis Testing}
+In order to create a differentially private hypothesis test, we need a private function $f$ of a database to serve as our test statistic. This could be a differentially private estimate of an existing test statistic, or it could be a new test statistic altogether. Because randomization is essential to differential privacy, $f$ will be randomized. The same statistic on the same database may yield different outputs each time it is computed.
+
+In addition to a test statistic $f$, we require a suitable reference distribution to calculate the corresponding $p$-value. While it may be tempting to compute the $p$-value using the reference distribution for the non-private statistic one is estimating, this may yield wildly inaccurate results~\cite{campbell2018diffprivanova}, because adding noise to the statistic increases the probability of outlier output values. Instead, we must compute the reference distribution for the noisy statistic. Only then can we calculate an accurate $p$-value. 
+
+The goal of differentially private hypothesis testing is to create a private test statistic and method of computing the $p$-value that maximizes statistical power, ideally approaching the power of the equivalent test in the classical non-private setting.

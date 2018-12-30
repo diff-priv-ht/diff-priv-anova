@@ -1,0 +1,23 @@
+F2, standard effect size:
+
+N, eps, Power
+4002,1,0.7478
+5334,1,0.9203
+
+F1, standard effect size:
+N,eps,Power
+30,None,0.9664
+
+300,1,0.8332
+399,1,0.9738
+
+534,0.5,0.7484
+711,0.5,0.9575
+
+3e3,0.1,0.8788
+4002,0.1,0.9836
+5334,0.1,0.9989
+
+Conclusion(s):
+With the standard effect size and epsilon = 1, the F2 statistic hits the .9 threshold with a database size of ~5300.
+With the same effect size and epsilon, the F1 statistic hits the .9 threshold with a database size of ~350.

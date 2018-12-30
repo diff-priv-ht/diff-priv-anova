@@ -1,0 +1,100 @@
+%!TEX root =  main.tex
+\section{Appendix: An unbiased estimator for $\sigma$}
+\label{Sec:AppSig}
+
+We are concerned with finding an unbiased estimator for $\sigma$ given $\widehat{SE}$.
+
+\begin{align}
+\widehat{SE} = \sum_{j=1}^k \sum_{i \in C_i} \lvert y_i - \bar{y}_{c_i} \rvert \label{eq:se}
+\end{align}
+
+Our first goal is to find $E(\widehat{SE})$. We begin by noting several relevant distributions.
+\begin{align*}
+y_i &\sim N(\mu, \sigma^2) \\
+\bar{y}_{c_i} &\sim N(\mu, \sigma^2/n_{c_i}) \\
+y_i - \bar{y}_{c_i} &\sim N(0, \tau^2).
+\end{align*}
+
+The term $\tau^2$ will be useful in determing the expected value of each term in $\widehat{SE}$, so we seek to express it in terms of known quantities.
+\begin{align}
+\tau^2 &= Var(y_i - \bar{y}_{c_i}) \nonumber \\
+&= Var(y_i) + Var(\bar{y}_{c_i}) - 2 Cov(y_i, \bar{y}_{c_i}) \nonumber \\
+&= \sigma^2 + \frac{\sigma^2}{n_{c_i}} - 2 Cov(y_i, \bar{y}_{c_i}). \label{eq:tau}
+\end{align}
+
+To solve for the covariance, noting that $Cov(X,Y) = E(XY) - \mu^2$, we start by finding
+\begin{align}
+E(y_i \bar{y}_{c_i}) &= \frac{1}{n_{c_i}} E(y_i (y_1 + y_2 + \ldots + y_i + \ldots + y_{n_{c_1}})) \nonumber \\
+&= \frac{1}{n_{c_i}} E(y_i^2 + y_i S_{-i}) \nonumber \\
+&= \frac{1}{n_{c_i}}\left( E\left(y_i^2\right) + E\left(y_i S_{-i}\right)\right), \label{eq:eyy}
+\end{align}
+
+where $S_{-i} = y_1 + y_2 + \ldots + y_{i-1} + y_{i+1} + \ldots + y_{n_{c_i}}$. The term $y_i^2$ will be chi-square distributed when standardized as follows.
+\begin{align*}
+Z^2 = \left(\frac{y_i - \mu}{\sigma}\right)^2 = \frac{1}{\sigma^2}\left(y^2 - 2y_i\mu + \mu^2\right)
+\end{align*}
+
+\noindent Therefore we can write
+\begin{align*}
+E(y^2) &= E\left(\frac{\sigma^2}{\sigma^2} \left(y^2 - 2y_i\mu + \mu^2\right) + 2y_i\mu - \mu^2\right) \\
+&= E\left(\sigma^2 Z^2 + 2y_i\mu - \mu^2\right) \\
+&= \sigma^2E(Z^2) + 2\mu E(y_i) - \mu^2 \\
+&= \sigma^2 + 2\mu^2 - \mu^2 \\
+&= \sigma^2 + \mu^2.
+\end{align*}
+
+\noindent Continuing from Eq.~\eqref{eq:eyy}, 
+\begin{align*}
+\frac{1}{n_{c_i}}\left( E\left(y_i^2\right) + E\left(y_i S_{-i}\right)\right) &= \frac{1}{n_{c_i}}\left(\sigma^2 + \mu^2 + E(y_i)E(S_{-i})\right) \\
+&= \frac{1}{n_{c_i}}\left(\sigma^2 + \mu^2 + (n_{c_i} - 1)\mu^2\right) \\
+&= \frac{1}{n_{c_i}}\left(\sigma^2 + n_{c_i}\mu^2\right) \\
+&= \frac{\sigma^2}{n_{c_i}} + \mu^2.
+\end{align*}
+
+\noindent Now we can return to the covariance term in Eq.~\eqref{eq:tau},
+\begin{align*}
+Cov(y_i, \bar{y}_{c_i}) &= E(y_i \bar{y}_{c_i}) - \mu^2 \\
+&= \frac{\sigma^2}{n_{c_i}} + \mu^2 - \mu^2 \\
+&= \frac{\sigma^2}{n_{c_i}}.
+\end{align*}
+
+\noindent Now we can finish the calculation of $\tau^2$.
+\begin{align*}
+\tau^2 &= \sigma^2 + \frac{\sigma^2}{n_{c_i}} - 2 Cov(y_i, \bar{y}_{c_i}) \\
+&= \sigma^2 + \frac{\sigma^2}{n_{c_i}} - 2 \frac{\sigma^2}{n_{c_i}} \\
+&= \sigma^2 - \frac{\sigma^2}{n_{c_i}} \\
+&= \sigma^2\left(1 - \frac{1}{n_{c_i}}\right).
+\end{align*}
+
+The distribution of the absolute value of a normal random variable with mean 0 and variance $\tau^2$ is half normal with a single parameter $\tau$, which should properly be indexed by the observation. For ease of notation, call this random variable $W_i$.
+\begin{align*}
+W_i = \lvert y_i - y_{c_i}\rvert \sim HN(\tau_i),
+\end{align*}
+
+\noindent where $E(W_i) = \tau_i \sqrt{\frac{2}{\pi}}$.  To find $E(\widehat{SE})$, we can write it using the double sum notation as in Eq.~\eqref{eq:se}.
+\begin{align*}
+E(\widehat{SE}) &= E\left(\sum_{j=1}^k \sum_{i \in C_i} W_i \right) \\
+&= \sum_{j=1}^k E\left(n_j W_j \right).
+\end{align*}
+
+\noindent The change in indices is justified by realizing that $W_i$ is the same for all $n_{c_i}$ elements in $C_i$ (in expectation). Continuing,
+\begin{align*}
+\sum_{j=1}^k E\left(n_j W_j \right) &= \sum_{j=1}^k n_j E\left(W_j \right) \\
+&= \sum_{j=1}^k n_j \tau_j \sqrt{\frac{2}{\pi}} \\
+&= \sqrt{\frac{2}{\pi}} \sum_{j=1}^k n_j \sqrt{\sigma^2\left(1 - \frac{1}{n_j}\right)}  \\
+&= \sigma \sqrt{\frac{2}{\pi}} \underbrace{\sum_{j=1}^k n_j \sqrt{\left(1 - \frac{1}{n_j}\right)}}_{\tilde{N}}.
+\end{align*}
+
+\noindent Denote the sum $\tilde{N}$, which is a number that approaches $N$ as the group sizes get large. This allows us to express the expected value more concisely as
+\begin{align*}
+E(\widehat{SE}) &= \sigma \sqrt{\frac{2}{\pi}} \tilde{N}.
+\end{align*}
+
+The final step is to correct for this bias in our final estimator:
+\begin{align*}
+\hat{\sigma} &\coloneqq \frac{\widehat{SE}}{\tilde{N}}\sqrt{\frac{\pi}{2}}, \text{where}\\
+E\left(\hat{\sigma}\right) &= \sigma.
+\end{align*}
+
+\noindent Using this exact estimator requires knowledge of each of the group sizes, which are private. Instead of dedicating part of the $\epsilon$ budget to this estimation, we used $N - k$ in place of $\tilde{N}$. At the smallest database sizes that we considered (around $N = 100$), this approximation accounts for < 1\% error. As the size of the database grows, this error shrinks to zero.
+

@@ -1,0 +1,41 @@
+%!TEX root =  main.tex
+\section{A New Class of Statistics: $G$-statistics}
+One of the main pieces of information we must estimate in all of our tests is the standard deviation of the database. For the $F_1$-statistic, this was estimated using $\widehat{\se}$.  In this section we present an alternative approach that proposes a new class of statistics, which we will call $G$-statistics, that feature a direct estimate of the standard deviation.
+
+We began by modifying the original $F_2$-statistic\ab{what is the $F_2$ statistic?} to compute the total database variance instead of the \ssa. The \ssa measures the amount of variance between groups, so the total database variance seems like a reasonable proxy for the \ssa.
+
+After the initial modification of using the variance instead of \ssa, we also investigated the same modifications that we made to the $F_2$-statistic, i.e. varying the exponent and the epsilon allocation. The $G$-statistics, which we define below, performed significantly worse than the $F_1$-statistic, with a few exceptions. \ab{we should probably define it first, so readers now what we're talking about, then discuss the riffs.}
+
+\ar{Need a discussion here about what the $G_2$ statistic looks like, how it's related to $F_2$, etc.  The $F$-statistic is commonly used, so many people know about it already. This is a new one, so we want to take time to explain why it's useful.}  \ms{I'm not sure how to do this, but I added some more discussion of the statistic... I've had a hard time with this section because it feels like I'm introducing a million things at once that are kind of similar to F.}
+
+\subsection{Defining the $G$-statistics}
+Below, we define the general $G_q$-statistic and leave the details of the sensitivity analysis and modifications to Appendix \ms{put in name of appendix}.
+
+\begin{definition}[$G_q$-statistic] \label{def:Gq} Given a database \x with $k$ groups and $n_j$ entries in the $j$-th group, the $\var_q$ calculation is defined as follows
+\begin{equation*}
+\var_q = \sum_{i=1}^N \lvert y_{i} - \overline{y} \rvert^q.
+\end{equation*}
+Where $q$ is a positive real number. The \sqe is as was defined previously in Definition~\ref{def:Fq}.
+
+Now, we define the $G_q$-statistic,
+\begin{equation*}
+G_q = \frac{\var_q/(\k-1)}{\sqe/(\dbsize-\k)}
+\end{equation*}
+\end{definition}
+
+\subsection{Choosing the Best Statistic}
+Unfortunately, there is no analytical way to determine which statistic is best for a given database, so we looked at the evidence from simulated data. As is discussed in Appendix \ms{insert appendix name}, the best exponent for $G_q$-statistics is $q=1$, and the best epsilon allocation is $\epsfrac = 0.3$\ms{Make sure this is the best. Was it 0.3 or 0.4?}\ag{Appendix says .75?}, so we will proceed with our comparisons using these parameters. 
+
+In general, the $F_1$ is significantly more powerful than the $G_1$, both with their optimized \epsfrac and $q$ values. We found one scenario where the $G_1$-statistic outperforms the $F_1$-statistic: databases where the within-group standard deviation is very small,  the means are far apart, and the group sizes are roughly equal.\ms{Make sure this is correct, and maybe be more precise than "small" and "far apart"} 
+
+The condition that the data have roughly equal group sizes is a strict requirement for the $G_1$-statistic. Unlike the $F_1$-statistic, the $G_1$-statistic's type 1 error increases as the group sizes become more skewed and unequal. This raises the concern that $G_1$ will wrongly reject the null hypothesis too often, and thus be unreliable for hypothesis testing. 
+
+\ms{This is where we should talk about when it's better--if we even have any examples of when it's better}. 
+
+For more details about the $G_q$-statistics, see Appendix \ms{Insert the appendix name}.
+
+
+\ar{I think this needs more clarification -- it's unclear to me what the $G$-statistic will gain you.  I'll wait until you've completed this section and re-read it then.}
+
+\ab{I'm wondering if we may want to cut G-statistic entirely}
+

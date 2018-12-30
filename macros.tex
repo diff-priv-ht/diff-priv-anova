@@ -1,0 +1,87 @@
+\let\svthefootnote\thefootnote
+\newcommand\blankfootnote[1]{%
+  \let\thefootnote\relax\footnotetext{#1}%
+  \let\thefootnote\svthefootnote%
+}
+
+\newcounter{ag}
+\addtocounter{ag}{1}
+\newcommand{\ag}[1]{\textcolor{red}{AG-\arabic{ag}}\blankfootnote{\textcolor{red}{AG-\arabic{ag}: #1}}\addtocounter{ag}{1}}
+
+\newcounter{ab}
+\addtocounter{ab}{1}
+\newcommand{\ab}[1]{\textcolor{blue}{AB-\arabic{ab}}\blankfootnote{\textcolor{blue}{AB-\arabic{ab}: #1}}\addtocounter{ab}{1}}
+
+\newcounter{ar}
+\addtocounter{ar}{1}
+\newcommand{\ar}[1]{\textcolor{violet}{AR-\arabic{ms}}\blankfootnote{\textcolor{violet}{AR-\arabic{ms}: #1}}\addtocounter{ms}{1}}
+
+\newcounter{irg}
+\addtocounter{irg}{1}
+\newcommand{\irg}[1]{\textcolor{teal}{IRG-\arabic{irg}}\blankfootnote{\textcolor{teal}{IRG-\arabic{irg}: #1}}\addtocounter{irg}{1}}
+
+\newcounter{igh}
+\addtocounter{igh}{1}
+\newcommand{\igh}[1]{\textcolor{magenta}{IGH-\arabic{igh}}\blankfootnote{\textcolor{magenta}{IGH-\arabic{igh}: #1}}\addtocounter{igh}{1}}
+
+\newcounter{ms}
+\addtocounter{ms}{1}
+\newcommand{\ms}[1]{\textcolor{olive}{MS-\arabic{ms}}\blankfootnote{\textcolor{olive}{MS-\arabic{ms}: #1}}\addtocounter{ms}{1}}
+
+
+%%% Theorem and Definition Macros %%%
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}
+\newtheorem{definition}{Definition}
+
+%%% New Commands %%%
+%%% Note: Try to keep these macros in vaguely alphabetic order so that it's easy to find the ones you want. %%%
+
+%\newcommand{\df1}{\ensuremath{df_1}}
+%\newcommand{\df2}{\ensuremath{df_2}}
+\newcommand{\crit}{\ensuremath{t^*}\xspace}
+\newcommand{\dbsize}{\ensuremath{N}\xspace}
+\newcommand{\eps}{\ensuremath{\varepsilon}\xspace}
+\newcommand{\epsfrac}{\ensuremath{\rho}\xspace}
+\newcommand{\f}{\ensuremath{F}}
+\newcommand{\grand}{\bar{y}}
+\renewcommand{\k}{\ensuremath{k}\xspace}
+\newcommand{\lap}{\ensuremath{{\sf Lap}}\xspace}
+
+\newcommand{\mse}{\textit{MSE}\xspace}
+\newcommand{\msa}{\textit{MSA}\xspace}
+
+\newcommand{\normal}{\ensuremath{\mathcal{N}}}
+
+\newcommand{\sse}{\textit{SSE}\xspace}
+\newcommand{\ssa}{\textit{SSA}\xspace}
+\newcommand{\ssaepsfrac}{\ensuremath{\eps_{\ssa}}\xspace}
+\newcommand{\se}{\textit{SE}\xspace}
+\newcommand{\sa}{\textit{SA}\xspace}
+\newcommand{\sqa}{\textit{SQA}\xspace}
+\newcommand{\sqe}{\textit{SQE}\xspace}
+
+%%note need to get rid of these%%
+\newcommand{\spe}{\textit{SPE}\xspace}
+\newcommand{\spa}{\textit{SPA}\xspace}
+\newcommand{\spv}{\textit{SPV}\xspace}
+
+
+\newcommand{\var}{\textit{VAR}\xspace}
+\newcommand{\varq}{\ensuremath{\var_q}\xspace}
+\newcommand{\x}{\ensuremath{\mathbf{x}}\xspace}
+\newcommand{\xprime}{\ensuremath{\mathbf{x'}}\xspace}
+\newcommand{\X}{\ensuremath{\mathbf{X}}\xspace}
+\newcommand{\data}{\ensuremath{\mathbf{x}}\xspace}
+\newcommand{\Data}{\ensuremath{\mathbf{X}}\xspace}
+
+\newcommand{\E}{\text{E}}
+\newcommand{\V}{\text{Var}}
+\newcommand{\cov}{\text{Cov}}
+\newcommand{\yj}{\bar{y}_j}
+\newcommand{\yb}{\bar y}
+\newcommand{\oeq}[1]{\overset{\text{#1}}{=}}
+\newtheorem{prop}{Proposition}
+
+\newcommand{\comment}[1]{\noindent\textbf{#1}\\}
+\newcommand{\response}[1]{\noindent\textit{#1}\\}

@@ -150,7 +150,9 @@ Another issue presented by the private estimation of $\sigma$ is that the Laplac
 
 This problem is unique to the private setting and we do the most conservative possible thing --- we never reject the null hypothesis when the estimated standard deviation was negative. Our reasoning was that a negative standard deviation has no statistical meaning and any calculations made from such an estimate would be uninformative.  This method for dealing with negative standard deviation estimates results in a type I error rate lower than $\alpha$, which means that our results are more conservative. As was mentioned earlier, the \sa increases as the database size and effect size between groups increases. Thus, negative standard deviation estimates tend to occur for database sizes and effect sizes that are so small that the effect is undetectable anyway.  As a result, this conservative choice does little to reduce the power of our test.
 
-A formal description of the private $F_1$ ANOVA test in presented in Algorithm~\ref{alg:pval}, which returns a Boolean indicating whether the null hypothesis $H_0$ is rejected. Note that Algorithm~\ref{alg:pval} only accesses the data through a call to Algorithm~\ref{alg:F1}, and Algorithm~\ref{alg:F1} is already shown to be private, therefore the privacy of Algorithm~\ref{alg:pval} follows immediately from Theorem~\ref{thm:postprocessing}.
+A formal description of the private $F_1$ ANOVA test in presented in Algorithm~\ref{alg:pval}, which returns a Boolean indicating whether the null hypothesis $H_0$ is rejected. 
+%Note that Algorithm~\ref{alg:pval} only accesses the data through a call to Algorithm~\ref{alg:F1}, and Algorithm~\ref{alg:F1} is already shown to be private, therefore the privacy of Algorithm~\ref{alg:pval} follows immediately from Theorem~\ref{thm:postprocessing}.
+
 \begin{algorithm}
 %Note: label has to be inside caption or else it will refer to subsection number instead of algorithm number
     \caption{ANOVA\_test($\x$, $\eps$, $\alpha$, \emph{reps})\label{alg:pval} }
@@ -177,6 +179,16 @@ A formal description of the private $F_1$ ANOVA test in presented in Algorithm~\
         \ENDIF
     \end{algorithmic}
 \end{algorithm}
+
+
+\begin{theorem} \label{thm:fullTestPriv}
+Algorithm \ref{alg:pval} is \eps-differentially private.
+\end{theorem}
+\begin{proof}
+This follows immediately from Theorem \ref{thm:AlgPriv} (privacy of the test statistic) and Theorem \ref{thm:postprocessing} (post-processing).  Using the notation of Theorem \ref{thm:postprocessing}, private\_F1 (Algorithm \ref{alg:F1}) is the function $f$, which is proven $\epsilon$-differentially private by Theorem \ref{thm:AlgPriv}.  The rest of the computation is the function $g$, and uses only the output of $f$.  The whole of Algorithm \ref{alg:pval} is therefore the composition of these two functions and as a result is itself private.
+\end{proof}
+
+
 
 % \begin{figure}
 % \centering

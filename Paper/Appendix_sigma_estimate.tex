@@ -5,7 +5,7 @@
 We are concerned with finding an unbiased estimator for $\sigma$ given $\widehat{SE}$.
 
 \begin{align}
-\widehat{SE} = \sum_{j=1}^k \sum_{i \in C_i} \lvert y_i - \bar{y}_{c_i} \rvert + L_2 \label{eq:se}
+\widehat{SE} = \left(\sum_{j=1}^k \sum_{i \in C_i} \lvert y_i - \bar{y}_{c_i} \rvert \right) + L_2 \label{eq:se}
 \end{align}
 
 Our first goal is to find $E(\widehat{SE})$. We begin by noting several relevant distributions.
@@ -71,11 +71,11 @@ The distribution of the absolute value of a normal random variable with mean 0 a
 W_i = \lvert y_i - y_{c_i}\rvert \sim HN(\tau_i),
 \end{align*}
 
-\noindent where $E(W_i) = \tau_i \sqrt{\frac{2}{\pi}}$.  To find $E(\widehat{SE})$, we can write it using the double sum notation as in Eq.~\eqref{eq:se}. Since $L_2$ is a Laplace distribution centered at zero, we can use linearity of expectation to simplify the expectation:
+\noindent where $E(W_i) = \tau_i \sqrt{\frac{2}{\pi}}$.  To find $E(\widehat{SE})$, we can write it using the double sum notation as in Eq.~\eqref{eq:se}. Since $L_2$ is a Laplace distribution centered at zero, we can use linearity of expectation to further simplify the expectation:
 \begin{align*}
-E(\widehat{SE}) &= E\left(\sum_{j=1}^k \sum_{i \in C_i} W_i + L_2 \right)\\
+E(\widehat{SE}) &= E\left(\sum_{j=1}^k \sum_{i \in C_i} W_i\right)+ E(L_2)\\
 &= E\left(\sum_{j=1}^k \sum_{i \in C_i} W_i \right) + 
-\underbrace{E(L_2)}_{0}\\
+0\\
 &= \sum_{j=1}^k E\left(n_j W_j \right).
 \end{align*}
 

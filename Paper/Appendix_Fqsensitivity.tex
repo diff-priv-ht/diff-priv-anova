@@ -63,11 +63,11 @@ $$ \Delta\sqe \le n_a(1-(1-1/n_a)^q) + n_b(1-(1-1/n_b)^q) + 1.$$
 
 Again, the sensitivity will be maximized when as much of the database is distributed between $n_a$ and $n_b$ as possible. To determine what the worst case allocation is, let 
 $$f = n_a(1-(1-1/n_a)^q) + (N-n_a)(1-(1-1/(N-n_a))^q) + 1,$$
-i.e. $f$ is an expression for the upper bound of $\Delta\sqe$ with $n_b$ replaced by $N-n_a$ to maximize sensitivity. Then, we can maximize $f$ in terms of $n_a$:
+i.e., $f$ is an expression for the upper bound of $\Delta\sqe$ with $n_b$ replaced by $N-n_a$ to maximize sensitivity. Then, we can maximize $f$ in terms of $n_a$:
 $$ \frac{\partial \Delta f}{\partial n_a} =  -\frac{1-q}{(N - n_a)^q} + \frac{1-q}{n_a^q}$$
 has a critical point at $n_a = N/2$, and 
 $$ \frac{\partial \Delta^2 f}{\partial n_a^2} = - \frac{(1-q)q}{(N-n_a)^{-1-q}} - \frac{(1-q)q}{n_a^{-1-q}}$$
-is always negative. So, $f$ is concave down and $n_a = N/2$ is a global maximum. Hence, the worst case sensitivity occurs when the database is distributed equally between groups $a$ and $b$, i.e. 
+is always negative. So, $f$ is concave down and $n_a = N/2$ is a global maximum. Hence, the worst case sensitivity occurs when the database is distributed equally between groups $a$ and $b$, i.e.,
 
 $$ \Delta\sqe \le N \left( 1- \left(1-\frac{2}{N}\right)^q \right) + 1.$$
 \end{proof}

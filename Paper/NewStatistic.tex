@@ -46,12 +46,16 @@ The sensitivity of the \se calculation in Definition~\ref{def:f1stat} is bounded
 
 \begin{proof}
 
-Suppose neighboring databases \x and \xprime differ by some row $r$ in both the categorical and numerical values. Say that in \x, $c_r = a$, and in \xprime, $c_r = b$. Note that this change will lead to a larger difference in the calculation of the \se than the difference would be if the categorical variable did not change. Let $n_a$ be the size of category $a$ excluding $r$ and let $n_b$ be the size of category $b$ excluding $r$. We begin by expressing the \se calculation as nested summations indexing over group size and entries within each group.
+Suppose neighboring databases \x and \xprime differ by some row $r$ %in both the categorical and numerical values. 
+Say that in \x, $c_r = a$, and in \xprime, $c_r = b$. 
+%Note that this change will lead to a larger difference in the calculation of the \se than the difference would be if the categorical variable did not change. 
+Let $n_a$ be the size of category $a$ excluding $r$ and let $n_b$ be the size of category $b$ excluding $r$. We begin by expressing the \se calculation as nested summations indexing over group size and entries within each group.
 
 $$ \se(\x) = \sum_{j=1}^k \sum_{i \in C_j}  \lvert y_{i} - \bar{y}_{c_i} \rvert. $$
 
-Call $t_{i} = \lvert y_{i} - \bar{y}_{c_i} \rvert$, and let $c_i \neq a,b$. Then, $t_{i}$ does not change between \x and \xprime. Now, suppose $i \ne r$ but $c_i = a$. It follows that $\Delta t_{i} \le 1/(n_a+1)$, since the only change comes from $\bar{y}_{a}$. There are $n_a$ such terms, so the total contribution from these terms is at most $n_a/(n_a+1)$. Similarly, if we consider $t_{i}$ where $i \ne r$ but $c_i = b$, $\Delta t_{i} \le 1/(n_b+1)$. Thus, the terms in groups $a$ and $b$ excluding row $r$ together contribute 
-$$ \frac{n_a}{n_a+1} + \frac{n_b}{n_b+1} \leq 2.$$
+Call $t_{i} = \lvert y_{i} - \bar{y}_{c_i} \rvert$, and let $c_i \neq a,b$. Then, $t_{i}$ does not change between \x and \xprime. Now, suppose $i \ne r$ but $c_i = a$. It follows that $\Delta t_{i} \le 1/(n_a+1)$, since the only change comes from $\bar{y}_{a}$. There are $n_a$ such terms, so the total contribution from these terms is at most $n_a/(n_a+1)$. If $a \neq b$, we must also consider $t_{i}$ where $i \ne r$ but $c_i = b$, for which we have $\Delta t_{i} \le 1/(n_b+1)$. Thus, the terms in groups $a$ and $b$ excluding row $r$ together contribute 
+$$ \frac{n_a}{n_a+1} + \frac{n_b}{n_b+1} \leq 2$$
+if $a \neq b$ and just $n_a / (n_a+1) < 1$ otherwise.
 
 Now, consider $\Delta t_{r}$. Since $y_{r}$, $\bar{y}_{a}$, and $\bar{y}_b$ are all in the interval $[0,1]$, the difference between $t_{r}$ in database \x and in \xprime is at most 1. Thus, the total sensitivity of \se is bounded above by 3.
 

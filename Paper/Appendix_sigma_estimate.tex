@@ -5,7 +5,7 @@
 We are concerned with finding an unbiased estimator for $\sigma$ given $\widehat{SE}$.
 
 \begin{align}
-\widehat{SE} = \left(\sum_{j=1}^k \sum_{i \in C_i} \lvert y_i - \bar{y}_{c_i} \rvert \right) + L_2 \label{eq:se}
+\widehat{SE} = \left(\sum_{j=1}^k \sum_{i \in C_j} \lvert y_i - \bar{y}_{c_i} \rvert \right) + L_2 \label{eq:se}
 \end{align}
 
 Our first goal is to find $E(\widehat{SE})$. We begin by noting several relevant distributions.
@@ -29,9 +29,9 @@ E(y_i \bar{y}_{c_i}) &= \frac{1}{n_{c_i}} E(y_i (y_1 + y_2 + \ldots + y_i + \ldo
 &= \frac{1}{n_{c_i}}\left( E\left(y_i^2\right) + E\left(y_i S_{-i}\right)\right), \label{eq:eyy}
 \end{align}
 
-where $S_{-i} = y_1 + y_2 + \ldots + y_{i-1} + y_{i+1} + \ldots + y_{n_{c_i}}$. The term $y_i^2$ will be chi-square distributed when standardized as follows.
+where $S_{-i} = y_1 + y_2 + \ldots + y_{i-1} + y_{i+1} + \ldots + y_{n_{c_i}}$. The term $y_i^2$ will be chi-square distributed when standardized as follows:
 \begin{align*}
-Z^2 = \left(\frac{y_i - \mu}{\sigma}\right)^2 = \frac{1}{\sigma^2}\left(y^2 - 2y_i\mu + \mu^2\right)
+Z^2 = \left(\frac{y_i - \mu}{\sigma}\right)^2 = \frac{1}{\sigma^2}\left(y^2 - 2y_i\mu + \mu^2\right).
 \end{align*}
 
 \noindent Therefore we can write

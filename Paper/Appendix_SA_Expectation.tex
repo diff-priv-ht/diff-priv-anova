@@ -1,4 +1,4 @@
-%!TEX root =  main.tex
+
 \section{Appendix: Validity under unequal $n_j$}\label{app:unequal}
 
 Consider a specific setting in which $N = 800$, $\sigma = 0.1$, and $k = 4$. Figure~\ref{Fig:unequal-group-sizes} shows the reference distributions of $F_1$ in four scenarios, each with a different group allocation of the 800 observations. The distribution in $s_0$, the equal group size scenario, generally takes the highest values; indeed it exceeds the other scenarios at every quantile. This represents the distribution that we use to calculate $p$-values and reject $H_0$ whenever an observed statistic is greater than the vertical dotted line (when $\alpha = .05$). This means that in the other three scenarios, featuring unequal allocation, the actual type I error rate (the proportion of the distributions beyond the dotted line) will be less than $\alpha$ and we meet the condition for valid $p$-values.

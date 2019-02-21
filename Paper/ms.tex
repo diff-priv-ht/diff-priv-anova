@@ -1,0 +1,60 @@
+\documentclass[USenglish,oneside]{article}
+
+\usepackage[utf8]{inputenc}%(only for the pdftex engine)
+%\RequirePackage[no-math]{fontspec}%(only for the luatex or the xetex engine)
+\usepackage{arxiv_style}
+
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{xspace}
+\usepackage{multicol}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{url}
+%\usepackage{cite}
+\usepackage{algorithmic, algorithm}
+
+\input{macros.tex}
+\graphicspath{ {images/} }
+
+\title{ Improved Differentially Private Analysis of Variance}
+\author{
+	\textbf{Marika Swanberg} & \textbf{Ira Globus-Harris} & \textbf{Iris Griffith}\\
+	\texttt{marlswanb@reed.edu} & \texttt{irglobush@reed.edu} & \texttt{irisrose@reed.edu}\\
+	\\
+	\textbf{Anna Ritz} & \textbf{Adam Groce} & \textbf{Andrew Bray}\\
+	\texttt{aritz@reed.edu} & \texttt{agroce@reed.edu} & \texttt{abray@reed.edu}\\
+}
+
+
+\date{}
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+{Hypothesis testing is one of the most common types of data analysis and forms the backbone of scientific research in many disciplines.  Analysis of variance (ANOVA) in particular is used to detect dependence between a categorical and a numerical variable.  Here we show how one can carry out this hypothesis test under the restrictions of differential privacy.  We show that the $F$-statistic, the optimal test statistic in the public setting, is no longer optimal in the private setting, and we develop a new test statistic $F_1$ with much higher statistical power.  We show how to rigorously compute a reference distribution for the $F_1$ statistic and give an algorithm that outputs accurate $p$-values.  We implement our test and experimentally optimize several parameters.  We then compare our test to the only previous work on private ANOVA testing, using the same effect size as that work.  We see an order of magnitude improvement, with our test requiring only 7\% as much data to detect the effect.}
+\end{abstract}
+
+\input{Introduction}
+\input{Background}
+\input{NewStatistic}
+\input{Results}
+\input{OtherConsiderations}
+
+\section*{Acknowledgements}
+This material is based upon work supported by the National Science Foundation under Grant No. SaTC-1817245 and by the Gillespie Family Student Research Fund.
+
+\bibliographystyle{plain}
+\bibliography{ANOVA}
+
+\appendix
+\input{Appendix_sigma_estimate}
+\input{Appendix_SA_Expectation}
+\input{Appendix_Fqsensitivity}
+\input{Appendix_DirectSDCalc}
+\input{Appendix_optimal_params}
+
+\end{document}

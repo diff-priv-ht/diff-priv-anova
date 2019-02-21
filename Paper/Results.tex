@@ -1,10 +1,6 @@
 
 \section{Experimental Results}
 \label{sec:results}
-% Valid test: uniformity of p-vals, good sigma estimate, and unequal group sizes.
-% We assess performance using power. talk through power incontext of different eps.
-% optimal rho
-% Last bit: comparison to campbell
 
 In this section we assess the properties and performance of Algorithm~\ref{alg:pval} through simulation. 
 
@@ -28,35 +24,11 @@ Figure~\ref{Fig:valid-pvals} presents these simulations for several choices of $
 
 We note also that when we simulate data for calculating a reference distribution, we always simulate data with equal-size groups.  I.e., we must confirm that the critical value of the reference distribution is highest when groups are of equal size.  Fortunately, this appears to be the case.  Appendix \ref{app:unequal} contains both experimental and theoretical arguments for this claim, though not a complete analytic proof.
 
-% \subsection{Varying the $\epsilon$ allocation}
-% In Algorith~\ref{alg:F1}, we divide the epsilon budget equally between the numerator and denominator of the statistics by allocating $\epsilon/2$ to each of \sa and \se. This is a perfectly reasonable starting point. We wondered if allocating more of the epsilon budget to the \sa would improve the power of the statistic, since we use $\sa/(\dbsize - \k)$ as our standard deviation estimate\ab{I thought we used SE/N?}. This modifies our algorithm slightly; rather than allocating \eps/2 to each of \sa and \se, we will allocate a portion $\epsfrac \cdot \eps$ to the \sa  computation, and $(1-\epsfrac)\cdot \eps$ to the \se computation, where $\epsfrac \in [0,1]$.  In other words, \epsfrac is the proportion of our epsilon budget that we will allocate to the \sa computation. This proportion could potentially be user-defined, but we found a particular value for \epsfrac to be superior, so it will be a constant. We used the same method for calculating the $p$-value for a statistic as the regular $F_1$ (Algorithm~\ref{alg:pval}).
-% 
-% Our updated algorithm is as follows: \ms{Not sure if it's clear enough to just describe or if we want to have the full algorithm. I put it in here so we can decide later}
-% \begin{algorithm}
-%     \caption{Differentially private ANOVA with Absolute Values and varying Epsilon Allocation \label{alg:F1epsfrac}}
-%     \begin{algorithmic}
-%         \STATE \textbf{Input:} Database $\x$, $\eps$ value, epsilon allocation $\epsfrac \in (0,1)$
-%         \STATE Compute $\widehat{\sa} = \sa(x) + Z_1$ where $Z_1\sim\text{Lap}\left(\frac{4}{\eps\cdot\epsfrac}\right)$
-%         \STATE Compute $\widehat{\se} = \se(x) + Z_2$ where $Z_2\sim\text{Lap}\left(\frac{3}{\eps\cdot(1-\epsfrac)}\right)$
-%         \STATE Compute $\widehat{F_1} = \frac{\widehat{\sa}/(k-1)}{\widehat{\se}/(n-k)}$
-%         \STATE \textbf{Output:} $\widehat{F_1}, \widehat{\sa}, \widehat{\se}$
-%     \end{algorithmic}
-% \end{algorithm}
-% 
-% \begin{theorem}
-% Algorithm~\ref{alg:F1epsfrac} is \eps -differentially private.
-% \end{theorem}
-% \begin{proof}
-% As before, we use the Laplace Mechanism (Definition~\ref{thm:lapmechanism}) to compute the \sa and \se with privacy $\eps\cdot\epsfrac$ and $\eps\cdot(1-\epsfrac)$, respectively. Since the number of groups \k and total database size \dbsize are public information, computing $\widehat{F_1}$ is post-processing (Theorem~\ref{thm:postprocessing}) and does not affect the privacy of Algorithm~\ref{alg:F1epsfrac} . Thus, by the composition theorem (Theorem~\ref{thm:composition}), Algorithm~\ref{alg:F1epsfrac} is $\eps\cdot\epsfrac + \eps\cdot(1-\epsfrac) = \eps$-differentially private.
-% \end{proof}
-
 \subsection{Optimal \epsfrac}\label{subsec:optrho}
 
 The computation of the private $F_1$ statistic requires the specification of $\epsfrac \in (0, 1)$, the parameter that determines the proportion of the privacy budget that is allocated to \sa relative to \se. We determined an optimal value for $\epsfrac$ by constructing power plots comparing database size to power for different \epsfrac values. We began by exploring the full range from $0.1$ to $0.9$ by $0.1$-increments to get a sense of the range of variability in power. After that initial pass, we tuned in to the value with higher precision. We considered many effect sizes and found that in every case $\epsfrac \approx 0.7$ was the most powerful.
 
 Figure~\ref{Fig:f1-epsfrac} is an example of one of the many scenarios that were considered, which identifies .7 as the optimal value. The scale of the effect of $\rho$ on power is not dramatic but it was persistent across scenarios.
-
-% We hypothesize that this difference comes from  either the difference in sensitivities of \sa and \se, or that having an accurate numerator contributes more to the overall accuracy of the statistic (?). \ms{Someone find an intelligent justification for this} \ar{Any justification will need to be backed up with a result -- think about how you could test this hypothesis.  If it remains speculative, it should go in the Discussion/Conclusion section, not in Results.}  Since we are not able to compute the optimal \epsfrac analytically, we resort to simulation across many effect sizes and database sizes to find the best \epsfrac.
 
 \begin{figure}
 \centering

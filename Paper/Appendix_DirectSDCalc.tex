@@ -25,7 +25,7 @@ Consider databases \x and \xprime which differ in entry $r$. Recall that the sen
 \Delta t_i &= \left\vert t_{i}(0) - t_i\left(\frac{1}{N}\right) \right\vert \\
 	&= \left( \frac{1}{N} \right)^q.
 \end{align*}
-%
+
 Every single term can be affected by at most $\left( \frac{1}{N} \right)^q$, except the term $r$, which can change by $1$. So, 
 \begin{align*}
 \Delta \varq &\le \left\vert (N-1)(\frac{1}{N})^q + 1 \right\vert \\
@@ -40,10 +40,6 @@ When $q>1, t_i$ is convex. The worst case sensitivity is between  $y_i - \grand 
 
 We again use the Laplace mechanism, and the sensitivity of a database's variance follows directly from Thm.~\ref{thm:varqSens}:
 
-%In our work, the calculation of $p$-values did not take up any portion of the privacy budget, since we were able to use the \mse as an estimate of the standard deviation when we calculated the null distribution. However, if this hadn't been the case, we would have had to allocate a portion of the privacy budget to this calculation, and sacrifice some of the accuracy of our test statistic. One might ask how much this would affect the statistic's power. 
-
-%To answer this question, we run the same power analysis as described in previous sections, but allocate part of the privacy budget to a differentially-private calculation of the variance of the data. We use the Laplace mechanism for our differentially private mechanism, so need to determine its sensitivity, which is stated below and follows directly from Thm.~\ref{thm:varqSens}.
-
 \begin{corollary}
 \label{thm:varsens}
 The sensitivity of the variance of a database is bounded above by
@@ -51,9 +47,6 @@ $$ 3 + 1/N^2 - 3/N.$$
 \end{corollary}
 
 Algorithm~\ref{alg:F1hatVar} divides the privacy budget into $\rho_1$ for the \sa, $\rho_2$ for the \se, and $\rho_3$ for the $\var$ calculations respectively.  The values of $\rho$ are provided as input along with the database \x and the $\eps$ value. When $\widehat{SE}$ is used as the $\sigma$ estimate, we found a 70-30 split of the privacy budget between \sa and \se was optimal (Figure~\ref{Fig:f1-epsfrac}).   In the power analysis of Algorithm~\ref{alg:F1hatVar}, we vary the proportion of the privacy budget dedicated to the \var calculation.  We fixed the proportion of the privacy budget for $\rho_1$ and $\rho_2$ to be a 70-30 split budget not used by $\rho_3$ (the \var calcuation).  
-
-
-%The resulting differentially-private algorithm is identical to our previous algorithms, except part of the privacy budget is allocated to a variance calculation, which is outputted in addition to the other calculations. The algorithm, which follows, additionally takes as input parameters $\rho_1, \rho_2,$ and $\rho_3$, where each $\rho$ is the fractional amount of the privacy parameter to budget to the $\sa, \se$ and $\var$ calculations respectively.
 
 \begin{algorithm}
     \begin{algorithmic}
@@ -69,8 +62,6 @@ Algorithm~\ref{alg:F1hatVar} divides the privacy budget into $\rho_1$ for the \s
 \end{algorithm}
 
 Unsurprisingly, allocating part of the budget to calculating the standard deviation negatively impacts the statistical power of the test (Fig.~\ref{Fig:multiple-rhos}). However, it is surprising that this allocation does not impact the power of the test more strongly, since \var has a larger sensitivity and requires adding noise to smaller values than the \sa and \se. 
-
-%Power analysis proceeds as in previous work, although we additionally experimentally optimize $\rho_1, \rho_2,$ and $\rho_3$. In our analysis, the choice of $\rho_1$ and $\rho_2$ is always a 70-30 split of the privacy budget not used by $\rho_3$; this choice was made due to the fact that when the standard deviation is estimated, a 70-30 split of the privacy budget between the \sa and \se turns out to be optimal. Unsurprisingly, as shown in Fig.~\ref{Fig:multiple-rhos}, allocating part of the budget to calculating the standard deviation negatively impacts the statistical power of the test. It is however surprising that it does not impact the power any more, since $\var$ has a larger sensitivity and requires adding noise to smaller values than the \sa and \se, since the residuals in the expression are squared.
 
 \begin{figure}[h]
 \centering

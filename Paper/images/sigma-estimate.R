@@ -45,5 +45,5 @@ p1 <- ggplot(d1,aes(x = x,y = y)) +
   ggtitle(expression(paste("Accuracy of ", sigma, " estimate"))) +
   theme(legend.position = "none")
 
-ggsave("sigma-estimate.png", p1, device = "png")
+ggsave("sigma-estimate.png", height = 5, width = 8, p1, device = "png")
 setwd(wd)

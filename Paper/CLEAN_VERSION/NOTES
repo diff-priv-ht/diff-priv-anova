@@ -1,0 +1,15 @@
+For preparing for arxiv (from Anna):
+
+1. Remove '\graphicspath{}' command and put images/ directly in the \includegraphics calls.
+
+2. Removed the dvipdfmx option from \includepackage{graphicx} (this caused errors for me)
+
+3. Put all .tex files in the ms.tex document (including macros.sty)
+
+4. Set \pdfoutput=1 so it's a PDF.
+
+5. Added authors and affiliations like the arxiv template (found it on overleaf but it's other places as well).
+
+MAKE THE ZIPPED FILE:
+
+tar -cvzf CLEAN_VERSION.tgz images/ ms.tex ms.bbl arxiv_style.sty 

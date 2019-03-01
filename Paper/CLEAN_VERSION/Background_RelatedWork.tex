@@ -1,0 +1,14 @@
+
+\subsection{Related Work}
+
+
+There has been a moderate amount of work on differentially private hypothesis testing, but because there are many hypothesis tests most individual tests have received only a small amount of attention, and some very common tests have not seen a private analogue developed at all.  
+
+
+Several papers have addressed testing the value of a mean or the difference of means \cite{solea2014differentially, d2015differential, ding2018comparing}.  Hypothesis tests using coefficients of a linear regression to test for dependence between continuous variables is extremely common in many academic disciplines, but only recently has a method for carrying this analysis out privately been developed \cite{sheffet2015differentially, barrientos2017differentially}. and Nguy{\^e}n and Hui propose a test for surival analysis data \cite{nguyen2017differentially}.  There is one prior work on private ANOVA testing, that of  Campbell et al.~\cite{campbell2018diffprivanova}.  We will discuss this result in greater depth in the next section.
+
+
+The chi-squared test, which tests for the independence of two categorical variables, has received the most study.  Vu and Slavkovi\'{c} \cite{vu2009differential} give an analogue to the test and also compute accurate $p$-values.   Many private chi-squared tests have been specifically motivated by genome-wide association studies (GWAS)  \cite{fienberg2011privacy, uhlerop2013privacy, johnson2013privacy}.  These give p-value calculations, but they are only accurate in the limit as $N$ grows large.  Other work has used Monte Carlo simulations (as we do in this work) to give more accurate reference distributions for small $N$ \cite{gaboardi2016differentially, wang2015revisiting}.  Rogers and Kifer \cite{rogers2017new} instead propose a new statistic with an asymptotic distribution more similar to its non-private analogue.  We note that this is one of few papers that, like the present work, proposes test statistics intended for the private setting, rather than simply approximating the accepted test statistic from the classic public setting. Very few of these papers carefully measure the power of the test they develop.  Rogers and Kifer \cite{rogers2017new} and Gaboardi et al.~\cite{gaboardi2016differentially} are notable exceptions, giving power curves for several different approaches.
+
+
+There is also a significant body of work looking at how quickly private approximations of test statistics converge to their limiting distributions (e.g., \cite{smith2008efficient, wasserman2010statistical, smith2011privacy}).  These are important theoretical results, but they do not usually yield practical tests.  Unless $N$ is very large (in which case the details of the test do not matter very much anyway) the distribution of the test statistic is not close enough to that of the standard public to allow accurate computation of $p$-values.

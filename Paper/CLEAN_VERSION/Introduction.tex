@@ -1,0 +1,48 @@
+
+\section{Introduction}
+
+%A recurring challenge in scientific research is determining whether an effect seen in a particular dataset indicates a similar effect in the broader world from which the sample was drawn.
+A universal and recurring challenge in scientific research is determining whether a measured effect is real.  That is, researchers wish to determine if the effect observed in a particular dataset indicates a similar effect in the broader world from which the sample was drawn. The most common statistical tool to make this determination is a hypothesis test.
+The particular form of the hypothesis test is driven by the scientific question and the data at hand. 
+%One of the most common scenarios involves determining if there is an association between membership in a treatment group and the average of an outcome of interest.
+
+Hypothesis testing is a common tool in population association studies, where the goal is to identify whether genetic variation is associated with disease risk~\cite{balding2006tutorial}.  Consider a study looking at the effect of a particular gene's mutation on some health outcome (e.g., blood pressure or weight).  The data may include the mutation status of that gene (which may harbor one or more mutations on one or both copies of DNA).  
+%The researcher has also collected data on an important health outcome (e.g., blood pressure or weight).  
+The researcher's goal is to determine if the gene's mutation status has an impact on that health outcome.  When the health outcome is measured using a numerical variable, the natural hypothesis test to use is the one-way ANOVA (analysis of variance) test, treating the gene's mutation status as a categorical variable.
+
+The first step in conducting the ANOVA is to calculate a single number, the $F$-statistic, which measures the variation in group means compared to the variation in individual data points. The $F$-statistic is constructed so that if the expected value of the health outcome is the same in all groups, the expected value of $F$ is 1.  If this is not the case, the value can be dramatically larger.  Seeing a high value of $F$, a researcher will compare this value to the \textit{reference distribution}, i.e., the distribution of $F$ that would occur if the gene had no impact on the health outcome.  The result of this comparison is a $p$-value, the probability that the observed $F$ could occur by chance.  If the $p$-value is low, the analyst can conclude that this gene must indeed affect the given health outcome.  (For more detail on how ANOVA is used in this setting, see~\cite{myers2003researchdesign}.)
+
+The analysis described above assumes that the researcher has full access to the database. However, there are many settings in medicine, psychology, education, and economics (not to mention private-sector data analysis) where the database is not available to the analyst due to privacy concerns. A well-established solution is to allow the researcher to issue queries to the data which are proven to satisfy differential privacy.  Differential privacy requires the addition of random noise to statistical queries and guarantees that the results reveal very little about any individual's data.
+
+In this paper we propose a new statistic for ANOVA, called $F_1$, that is specifically tailored to the differentially private setting. This statistic measures the same variations as the $F$ statistic, but uses $|a-b|$ instead of $(a-b)^2$ to measure the distance between $a$ and $b$.  In the public setting the $F_1$ is a worse test statistic than the traditional $F$-statistic, but we show that in the private setting it has much higher power than the previously published differentially private $F$-statistic.  That is, we show that it can detect effects with a little as 7\% of the data that was previously required.  (In one example, an effect that took 5300 data points to detect 90\% of the time with $\epsilon=1$ in the prior work takes only 350 data points to detect using our new hypothesis test.)
+
+%There are two key features that make the new statistic well-suited to a private setting. First, the sensitivity of each dispersion term is lower, meaning that less added noise is needed to make the same privacy guarantee. Second, the raw values of the dispersion terms are higher, making any given amount of noise less harmful. We also dedicate a larger proportion of the privacy budget to the dispersion term in the numerator, which we find increases power.\ag{Cut this paragraph?}
+
+
+
+\subsection{Contributions and organization}
+
+We first review differential privacy, hypothesis testing, and the body of work that lies at the intersection of the two fields (Section~\ref{sec:background}).  
+%  This is found in Section \ref{XX}, along with a description of the only existing work on private ANOVA, that of Campbell et al. \cite{Campbell2018DifferentiallyPA}, to which we compare our results.  
+In Section \ref{sec:f1} we then present a new test statistic, $F_1$, for ANOVA in the private setting.  While there is some work on differentially private hypothesis testing, designing a new test statistic explicitly tailored for compatibility with differential privacy has been done by few others~\cite{rogers2017new}.  
+
+In Section 3.2 we give a private algorithm for computing an approximation of $F_1$ by applying the Laplacian mechanism to the computation of several intermediate values.  Section 3.3 then describes how to compute the correct reference distribution for $F_1$ to in order to compute accurate $p$-values, which are the end result used by practitioners.  Computing the reference distribution is complicated by the fact that, unlike the traditional $F$-statistic, $F_1$ is not scale-free. 
+
+We implement the private $F_1$-statistic and apply the method to different simulated datasets in Section~\ref{sec:results}.  The computational experiments allow us to optimize $\rho$, a parameter that determines the allocation of our privacy budget between the two important intermediate values.  We also compare our method to prior work~\cite{campbell2018diffprivanova}, and show an order of magnitude improvement in statistical power.
+
+% Finally, in Section~\ref{sec:considerations} we present other possible test statistics and compare them to the $F_1$.  First, we consider using other exponents in our distance measure (besides the absolute value from $F_1$ and the $L^2$-norm from the traditional $F$) and find that our choice of simple absolute value is ideal.  Then we consider an entirely different statistic, $G_1$. We find that $G_1$ is superior to $F_1$ in some very particular, unusual situations, but that $F_1$ is the better general-purpose statistic.
+
+Finally, in Section~\ref{sec:considerations} we present a generalization of the $F_1$ statistic that allows for an arbitrary exponent in the distance measure (besides the absolute value from $F_1$ and the $L^2$-norm from the traditional $F$). We find that the $L^1$-norm used in the $F_1$ statistic is the most powerful across a wide range of scenarios.
+
+%, but that $F_1$ is clearly the better general-purpose statistic.
+
+%%We then present the following contributions:
+%%This is one of the first times that a new test statistic has been proposed that is specifically designed for compatibility with differential privacy.
+%\begin{enumerate}
+%\item We give a private algorithm for computing an approximation of $F_1$ by applying the Laplacian mechanism to the computation of several intermediate values.
+%\item We show how to compute the correct reference distribution for $F_1$ to in order to compute accurate $p$-values, which are the end result used by practitioners.  Computing the reference distribution is complicated by the fact that, unlike the traditional $F$-statistic, $F_1$ is not scale-free.  
+%%Knowing this distribution, we can compute accurate p-values, which are the end result used by practitioners.
+%\item   This allows us to optimize $\rho$, a parameter that determines the allocation of our privacy budget between the two important intermediate values.  It also allows comparison to prior work, which shows an order of magnitude improvement in statistical power.
+%\item We consider other possible test statistics.  First we consider using other exponents in our distance measure and find that our choice of simple absolute value is ideal.  Then we consider an entirely different statistic $G_1$.  Here we find that $G_1$ is superior to $F_1$ is some very particular, unusual situations, but that $F_1$ is clearly the better general-purpose statistic.
+%\end{enumerate}
+%All of the theoretical results relating to the new test statistic $F_1$ can be found in Section \ref{XX}.  The results of our implementation and our comparison to prior work are in Section \ref{XX}.  Finally, Section \ref{XX} describes the other test statistics that we developed but which were found to be inferior to $F_1$.

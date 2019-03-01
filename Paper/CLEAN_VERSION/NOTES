@@ -12,4 +12,4 @@ For preparing for arxiv (from Anna):
 
 MAKE THE ZIPPED FILE:
 
-tar -cvzf CLEAN_VERSION.tgz images/ ms.tex ms.bbl arxiv_style.sty 
+tar -cvzf CLEAN_VERSION.tgz images/ ms.tex ms.bbl arxiv_style.sty natbib.sty
